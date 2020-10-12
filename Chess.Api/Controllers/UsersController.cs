@@ -43,6 +43,7 @@ namespace Chess.Api.Controllers
             var hashedPassword = HashPassword(userModel.Password, salt);
 
             var newId = _userRepository.CreateUser(userModel.Username, hashedPassword, Convert.ToBase64String(salt));
+            _logger.LogInformation($"Created new user. Username {userModel.Username} ID {newId}");
 
             return Ok(new ApiMethodResponse<int>
             {

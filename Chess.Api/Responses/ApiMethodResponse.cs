@@ -6,6 +6,7 @@
         public string[] Errors { get; set; }
         public bool IsSuccess { get
             {
+                if (Errors == null) return true;
                 return Errors?.Length == 0;
             } 
         }
