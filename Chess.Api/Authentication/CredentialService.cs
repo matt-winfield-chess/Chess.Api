@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+﻿using Chess.Api.Authentication.Interfaces;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using System;
 using System.Security.Cryptography;
 

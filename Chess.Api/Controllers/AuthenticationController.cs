@@ -1,4 +1,4 @@
-﻿using Chess.Api.Authentication;
+﻿using Chess.Api.Authentication.Interfaces;
 using Chess.Api.Interfaces.Repositories;
 using Chess.Api.Models;
 using Chess.Api.Responses;
@@ -14,24 +14,26 @@ namespace Chess.Api.Controllers
     {
         private IUserRepository _userRepository;
         private ICredentialService _credentialService;
+        private IJwtService _jwtService;
         private ILogger<AuthenticationController> _logger;
 
-        public AuthenticationController(IUserRepository userRepository, ICredentialService credentialService, ILogger<AuthenticationController> logger)
+        public AuthenticationController(IUserRepository userRepository, ICredentialService credentialService, IJwtService jwtService, ILogger<AuthenticationController> logger)
         {
             _userRepository = userRepository;
             _credentialService = credentialService;
+            _jwtService = jwtService;
             _logger = logger;
         }
 
         [HttpPost("Authenticate")]
-        public ActionResult<ApiMethodResponse<string>> Post([FromBody] PostCredentialsModel credentials)
+        public ActionResult<ApiMethodResponse<LoginResponse>> Post([FromBody] PostCredentialsModel credentials)
         {
             var credentialsToCompare = _userRepository.GetUserCredentialsByUsername(credentials.Username);
 
             if (credentialsToCompare == null)
             {
                 _logger.LogInformation($"Failed to get login details for '{credentials.Username}'");
-                return Unauthorized(new ApiMethodResponse<string>
+                return Unauthorized(new ApiMethodResponse<LoginResponse>
                 {
                     Errors = new string[] { "Username or password was incorrect" }
                 });
@@ -43,13 +45,23 @@ namespace Chess.Api.Controllers
             if (!passwordHash.Equals(credentialsToCompare.HashedPassword))
             {
                 _logger.LogInformation($"Login failed for user {credentialsToCompare.UserId} ('{credentials.Username}')");
-                return Unauthorized(new ApiMethodResponse<string>
+                return Unauthorized(new ApiMethodResponse<LoginResponse>
                 {
                     Errors = new string[] { "Username or password was incorrect" }
                 });
             }
 
-            return Ok(new ApiMethodResponse<string>());
+            var token = _jwtService.GenerateJwtToken(credentialsToCompare.UserId);
+
+            return Ok(new ApiMethodResponse<LoginResponse>
+            {
+                Data = new LoginResponse
+                {
+                    Id = credentialsToCompare.UserId,
+                    Username = credentials.Username,
+                    Token = token
+                }
+            });
         }
     }
 }

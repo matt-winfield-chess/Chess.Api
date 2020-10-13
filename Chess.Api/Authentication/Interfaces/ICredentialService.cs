@@ -1,4 +1,4 @@
-﻿namespace Chess.Api.Authentication
+﻿namespace Chess.Api.Authentication.Interfaces
 {
     public interface ICredentialService
     {

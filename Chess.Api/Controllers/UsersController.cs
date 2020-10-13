@@ -1,14 +1,14 @@
-﻿using Chess.Api.Authentication;
+﻿using Chess.Api.Authentication.Interfaces;
 using Chess.Api.Interfaces.Repositories;
 using Chess.Api.Models;
 using Chess.Api.Responses;
 using Chess.Api.Validators;
-using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
-using System.Security.Cryptography;
 
 namespace Chess.Api.Controllers
 {
@@ -29,7 +29,6 @@ namespace Chess.Api.Controllers
             _logger = logger;
         }
 
-        // POST api/<controller>
         [HttpPost]
         public ActionResult<ApiMethodResponse<int>> Post([FromBody] PostUserModel userModel)
         {
@@ -62,6 +61,19 @@ namespace Chess.Api.Controllers
                     Errors = new string[] { "User account creation failed" }
                 });
             }
+        }
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [HttpGet("UserId")]
+        public ActionResult<ApiMethodResponse<string>> GetUserId()
+        {
+            var claims = HttpContext.User.Claims;
+            var id = claims.FirstOrDefault(claim => claim.Type == "id")?.Value;
+
+            return Ok(new ApiMethodResponse<string>
+            {
+                Data = id
+            });
         }
     }
 }
