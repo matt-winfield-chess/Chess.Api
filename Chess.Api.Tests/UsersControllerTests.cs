@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Chess.Api.Responses;
 using MySql.Data.MySqlClient;
 using System.Runtime.Serialization;
+using Chess.Api.Authentication;
 
 namespace Chess.Api.Tests
 {
@@ -30,7 +31,7 @@ namespace Chess.Api.Tests
             _userRepositoryMock = new Mock<IUserRepository>();
             _loggerMock = new Mock<ILogger<UsersController>>();
 
-            _controller = new UsersController(_userRepositoryMock.Object, _loggerMock.Object);
+            _controller = new UsersController(_userRepositoryMock.Object, new CredentialService(), _loggerMock.Object);
         }
 
         [Test]

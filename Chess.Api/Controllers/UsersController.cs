@@ -1,13 +1,14 @@
-﻿using Chess.Api.Interfaces.Repositories;
+﻿using Chess.Api.Authentication.Interfaces;
+using Chess.Api.Interfaces.Repositories;
 using Chess.Api.Models;
 using Chess.Api.Responses;
 using Chess.Api.Validators;
-using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
-using System.Security.Cryptography;
 
 namespace Chess.Api.Controllers
 {
@@ -16,19 +17,20 @@ namespace Chess.Api.Controllers
     public class UsersController : Controller
     {
         private IUserRepository _userRepository;
+        private ICredentialService _credentialService;
         private PostUserModelValidator _postUserModelValidator;
         private ILogger<UsersController> _logger;
 
-        public UsersController(IUserRepository userRepository, ILogger<UsersController> logger)
+        public UsersController(IUserRepository userRepository, ICredentialService credentialService, ILogger<UsersController> logger)
         {
             _userRepository = userRepository;
+            _credentialService = credentialService;
             _postUserModelValidator = new PostUserModelValidator();
             _logger = logger;
         }
 
-        // POST api/<controller>
         [HttpPost]
-        public ActionResult<ApiMethodResponse<int>> Post([FromBody]PostUserModel userModel)
+        public ActionResult<ApiMethodResponse<int>> Post([FromBody] PostUserModel userModel)
         {
             var validationResult = _postUserModelValidator.Validate(userModel);
             if (!validationResult.IsValid)
@@ -39,8 +41,8 @@ namespace Chess.Api.Controllers
                 });
             }
 
-            var salt = GenerateRandomSalt();
-            var hashedPassword = HashPassword(userModel.Password, salt);
+            var salt = _credentialService.GenerateRandomSalt();
+            var hashedPassword = _credentialService.HashPassword(userModel.Password, salt);
 
             try
             {
@@ -61,25 +63,17 @@ namespace Chess.Api.Controllers
             }
         }
 
-        private byte[] GenerateRandomSalt()
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [HttpGet("UserId")]
+        public ActionResult<ApiMethodResponse<string>> GetUserId()
         {
-            byte[] salt = new byte[128 / 8];
-            using (var rng = RandomNumberGenerator.Create())
-            {
-                rng.GetBytes(salt);
-            }
-            return salt;
-        }
+            var claims = HttpContext.User.Claims;
+            var id = claims.FirstOrDefault(claim => claim.Type == "id")?.Value;
 
-        private string HashPassword(string password, byte[] salt)
-        {
-            return Convert.ToBase64String(KeyDerivation.Pbkdf2(
-                password: password,
-                salt: salt,
-                prf: KeyDerivationPrf.HMACSHA256,
-                iterationCount: 10000,
-                numBytesRequested: 256 / 8
-            ));
+            return Ok(new ApiMethodResponse<string>
+            {
+                Data = id
+            });
         }
     }
 }

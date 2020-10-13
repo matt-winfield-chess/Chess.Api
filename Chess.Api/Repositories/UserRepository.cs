@@ -1,4 +1,5 @@
 ﻿using Chess.Api.Interfaces.Repositories;
+using Chess.Api.Models;
 using Dapper;
 using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient;
@@ -26,6 +27,30 @@ namespace Chess.Api.Repositories
             _connection.Execute("CreateUser", parameters, commandType: CommandType.StoredProcedure);
 
             return parameters.Get<int>("idOutput");
+        }
+
+        public HashedCredentials GetUserCredentialsByUsername(string username)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("usernameInput", username);
+            parameters.Add("idOutput", direction: ParameterDirection.Output);
+            parameters.Add("passwordHashOutput", direction: ParameterDirection.Output);
+            parameters.Add("passwordSaltOutput", direction: ParameterDirection.Output);
+
+            _connection.Execute("GetUserCredentialsByUsername", parameters, commandType: CommandType.StoredProcedure);
+
+            try
+            {
+                return new HashedCredentials
+                {
+                    UserId = parameters.Get<int>("idOutput"),
+                    HashedPassword = parameters.Get<string>("passwordHashOutput"),
+                    Salt = parameters.Get<string>("passwordSaltOutput")
+                };
+            } catch // Unable to get data - username does not exist
+            {
+                return null;
+            }
         }
     }
 }
