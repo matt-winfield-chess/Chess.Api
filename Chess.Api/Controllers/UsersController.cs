@@ -42,13 +42,23 @@ namespace Chess.Api.Controllers
             var salt = GenerateRandomSalt();
             var hashedPassword = HashPassword(userModel.Password, salt);
 
-            var newId = _userRepository.CreateUser(userModel.Username, hashedPassword, Convert.ToBase64String(salt));
-            _logger.LogInformation($"Created new user. Username {userModel.Username} ID {newId}");
-
-            return Ok(new ApiMethodResponse<int>
+            try
             {
-                Data = newId
-            });
+                var newId = _userRepository.CreateUser(userModel.Username, hashedPassword, Convert.ToBase64String(salt));
+                _logger.LogInformation($"Created new user. Username {userModel.Username} ID {newId}");
+
+                return Ok(new ApiMethodResponse<int>
+                {
+                    Data = newId
+                });
+            } catch (Exception e)
+            {
+                _logger.LogError($"User creation failed - {e.Message}");
+                return BadRequest(new ApiMethodResponse<int>
+                {
+                    Errors = new string[] { "User account creation failed" }
+                });
+            }
         }
 
         private byte[] GenerateRandomSalt()

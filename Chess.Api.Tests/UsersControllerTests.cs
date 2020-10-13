@@ -7,6 +7,8 @@ using NUnit.Framework;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Chess.Api.Responses;
+using MySql.Data.MySqlClient;
+using System.Runtime.Serialization;
 
 namespace Chess.Api.Tests
 {
@@ -140,6 +142,25 @@ namespace Chess.Api.Tests
             {
                 Username = VALID_USERNAME,
                 Password = NON_ASCII_STRING
+            });
+
+            var result = TestHelper.ConvertObjectResponse<ApiMethodResponse<int>, BadRequestObjectResult>(actionResult);
+            result.IsSuccess.Should().BeFalse();
+            result.Errors.Length.Should().Be(1);
+        }
+
+        [Test]
+        public void PostUser_ShouldReturnError_IfAccountCreationFails()
+        {
+            var mockException = FormatterServices.GetUninitializedObject(typeof(MySqlException)) as MySqlException;
+
+            _userRepositoryMock.Setup(mock => mock.CreateUser(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Throws(mockException);
+
+            var actionResult = _controller.Post(new PostUserModel
+            {
+                Username = VALID_USERNAME,
+                Password = VALID_PASSWORD
             });
 
             var result = TestHelper.ConvertObjectResponse<ApiMethodResponse<int>, BadRequestObjectResult>(actionResult);
