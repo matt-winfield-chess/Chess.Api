@@ -1,3 +1,4 @@
+using Chess.Api.Authentication;
 using Chess.Api.Interfaces.Repositories;
 using Chess.Api.Repositories;
 using Microsoft.AspNetCore.Builder;
@@ -38,6 +39,7 @@ namespace Chess.Api
             }));
 
             RegisterRepositories(services);
+            RegisterServices(services);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -74,6 +76,11 @@ namespace Chess.Api
         private void RegisterRepositories(IServiceCollection services)
         {
             services.AddSingleton<IUserRepository, UserRepository>();
+        }
+
+        private void RegisterServices(IServiceCollection services)
+        {
+            services.AddTransient<ICredentialService, CredentialService>();
         }
     }
 }
