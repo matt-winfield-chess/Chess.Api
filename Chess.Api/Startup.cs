@@ -11,6 +11,8 @@ namespace Chess.Api
 {
     public class Startup
     {
+        private readonly string CorsPolicyName = "CorsPolicy";
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -24,6 +26,16 @@ namespace Chess.Api
             services.AddControllers();
 
             services.AddSwaggerGen();
+
+            string[] allowedHosts = Configuration.GetSection("CorsAllowedHosts").Get<string[]>();
+            Log.Information("CORS allowed hosts configured as {allowedHosts}", allowedHosts);
+            services.AddCors(o => o.AddPolicy(CorsPolicyName, builder =>
+            {
+                builder.AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials()
+                .WithOrigins(allowedHosts);
+            }));
 
             RegisterRepositories(services);
         }
@@ -50,6 +62,8 @@ namespace Chess.Api
             app.UseRouting();
 
             app.UseAuthorization();
+
+            app.UseCors(CorsPolicyName);
 
             app.UseEndpoints(endpoints =>
             {
