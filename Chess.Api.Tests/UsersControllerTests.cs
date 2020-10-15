@@ -1,5 +1,4 @@
 ﻿using Chess.Api.Controllers;
-using Chess.Api.Interfaces.Repositories;
 using Chess.Api.Models;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -10,6 +9,7 @@ using Chess.Api.Responses;
 using MySql.Data.MySqlClient;
 using System.Runtime.Serialization;
 using Chess.Api.Authentication;
+using Chess.Api.Repositories.Interfaces;
 
 namespace Chess.Api.Tests
 {

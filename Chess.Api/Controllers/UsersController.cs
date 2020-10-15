@@ -1,6 +1,6 @@
 ﻿using Chess.Api.Authentication.Interfaces;
-using Chess.Api.Interfaces.Repositories;
 using Chess.Api.Models;
+using Chess.Api.Repositories.Interfaces;
 using Chess.Api.Responses;
 using Chess.Api.Validators;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -63,7 +63,7 @@ namespace Chess.Api.Controllers
             }
         }
 
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize]
         [HttpGet("UserId")]
         public ActionResult<ApiMethodResponse<string>> GetUserId()
         {
