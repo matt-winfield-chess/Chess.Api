@@ -1,6 +1,5 @@
 ﻿using Chess.Api.Authentication.Interfaces;
 using Chess.Api.Controllers;
-using Chess.Api.Interfaces.Repositories;
 using Chess.Api.Models;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -8,6 +7,7 @@ using NUnit.Framework;
 using FluentAssertions;
 using Chess.Api.Responses;
 using Microsoft.AspNetCore.Mvc;
+using Chess.Api.Repositories.Interfaces;
 
 namespace Chess.Api.Tests
 {
