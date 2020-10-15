@@ -5,6 +5,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.AspNetCore.SignalR;
+using Chess.Api.SignalR.Hubs;
+using System.Threading.Tasks;
+using Chess.Api.SignalR.Messages;
 
 namespace Chess.Api.Controllers
 {
@@ -15,11 +19,13 @@ namespace Chess.Api.Controllers
     {
         private IChallengeRepository _challengeRepository;
         private IUserRepository _userRepository;
+        private IHubContext<ChallengeHub> _challengeHubContext;
 
-        public ChallengeController(IChallengeRepository challengeRepository, IUserRepository userRepository)
+        public ChallengeController(IChallengeRepository challengeRepository, IUserRepository userRepository, IHubContext<ChallengeHub> challengeHubContext)
         {
             _challengeRepository = challengeRepository;
             _userRepository = userRepository;
+            _challengeHubContext = challengeHubContext;
         }
 
         [HttpGet("/receivedChallenges")]
@@ -54,11 +60,12 @@ namespace Chess.Api.Controllers
         }
 
         [HttpPost("/sendChallenge")]
-        public ActionResult<ApiMethodResponse<bool>> PostChallenge([FromBody] PostChallengeModel challengeModel)
+        public async Task<ActionResult<ApiMethodResponse<bool>>> PostChallenge([FromBody] PostChallengeModel challengeModel)
         {
             var claims = HttpContext.User.Claims;
             var id = int.Parse(claims.FirstOrDefault(claim => claim.Type == "id")?.Value);
 
+            var challenger = _userRepository.GetUserById(id);
             var recipient = _userRepository.GetUserCredentialsByUsername(challengeModel.Username);
 
             if (recipient == null)
@@ -69,9 +76,20 @@ namespace Chess.Api.Controllers
                 });
             }
 
-            _challengeRepository.CreateChallenge(id, recipient.UserId, challengeModel.ChallengerColor);
+            try
+            {
+                _challengeRepository.CreateChallenge(id, recipient.UserId, challengeModel.ChallengerColor);
 
-            return Ok(new ApiMethodResponse<bool>());
+                await SendNewChallengeMessage(challengeModel, challenger, recipient);
+
+                return Ok(new ApiMethodResponse<bool>());
+            } catch
+            {
+                return BadRequest(new ApiMethodResponse<bool>
+                {
+                    Errors = new string[] { $"Challenge has already been sent to '{challengeModel.Username}'" }
+                });
+            }
         }
 
         [HttpDelete("{challengerId}/{recipientId}")]
@@ -97,6 +115,20 @@ namespace Chess.Api.Controllers
                     Recipient = recipient,
                     ChallengerColor = challenge.ChallengerColor
                 };
+            });
+        }
+
+        private async Task SendNewChallengeMessage(PostChallengeModel challengeModel, User challenger, HashedCredentials recipient)
+        {
+            await _challengeHubContext.Clients.User(recipient.UserId.ToString()).SendAsync(ChallengeHubOutgoingMessages.NEW_CHALLENGE, new Challenge
+            {
+                Challenger = challenger,
+                Recipient = new User
+                {
+                    Id = recipient.UserId,
+                    Username = challengeModel.Username
+                },
+                ChallengerColor = challengeModel.ChallengerColor
             });
         }
     }
