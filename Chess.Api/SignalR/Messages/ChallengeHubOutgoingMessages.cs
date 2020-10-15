@@ -2,6 +2,6 @@
 {
     public static class ChallengeHubOutgoingMessages
     {
-        public static string NEW_CHALLENGE = "NewChallange";
+        public static string NEW_CHALLENGE = "NewChallenge";
     }
 }

@@ -120,7 +120,8 @@ namespace Chess.Api.Controllers
 
         private async Task SendNewChallengeMessage(PostChallengeModel challengeModel, User challenger, HashedCredentials recipient)
         {
-            await _challengeHubContext.Clients.User(recipient.UserId.ToString()).SendAsync(ChallengeHubOutgoingMessages.NEW_CHALLENGE, new Challenge
+            var user = _challengeHubContext.Clients.User(recipient.UserId.ToString());
+            await user.SendAsync(ChallengeHubOutgoingMessages.NEW_CHALLENGE, new Challenge
             {
                 Challenger = challenger,
                 Recipient = new User

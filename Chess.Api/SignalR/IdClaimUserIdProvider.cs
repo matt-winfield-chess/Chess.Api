@@ -7,7 +7,7 @@ namespace Chess.Api.SignalR
     {
         public string GetUserId(HubConnectionContext connection)
         {
-            return connection.User.Claims.First(claim => claim.Type == "id").Value;
+            return connection?.User?.Claims?.FirstOrDefault(claim => claim.Type == "id")?.Value;
         }
     }
 }
