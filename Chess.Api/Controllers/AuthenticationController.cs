@@ -1,6 +1,6 @@
 ﻿using Chess.Api.Authentication.Interfaces;
-using Chess.Api.Interfaces.Repositories;
 using Chess.Api.Models;
+using Chess.Api.Repositories.Interfaces;
 using Chess.Api.Responses;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;

@@ -1,8 +1,9 @@
 using Chess.Api.Authentication;
 using Chess.Api.Authentication.Interfaces;
-using Chess.Api.Interfaces.Repositories;
 using Chess.Api.Repositories;
+using Chess.Api.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -41,6 +42,17 @@ namespace Chess.Api
                 .AllowCredentials()
                 .WithOrigins(allowedHosts);
             }));
+
+            services.AddAuthorization(options =>
+            {
+                var defaultAuthorizationPolicyBuilder = new AuthorizationPolicyBuilder(
+                    JwtBearerDefaults.AuthenticationScheme);
+
+                defaultAuthorizationPolicyBuilder =
+                    defaultAuthorizationPolicyBuilder.RequireAuthenticatedUser();
+
+                options.DefaultPolicy = defaultAuthorizationPolicyBuilder.Build();
+            });
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
@@ -133,6 +145,7 @@ namespace Chess.Api
         private void RegisterRepositories(IServiceCollection services)
         {
             services.AddSingleton<IUserRepository, UserRepository>();
+            services.AddSingleton<IChallengeRepository, ChallengeRepository>();
         }
 
         private void RegisterServices(IServiceCollection services)

@@ -1,5 +1,5 @@
-﻿using Chess.Api.Interfaces.Repositories;
-using Chess.Api.Models;
+﻿using Chess.Api.Models;
+using Chess.Api.Repositories.Interfaces;
 using Dapper;
 using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient;
@@ -27,6 +27,14 @@ namespace Chess.Api.Repositories
             _connection.Execute("CreateUser", parameters, commandType: CommandType.StoredProcedure);
 
             return parameters.Get<int>("idOutput");
+        }
+
+        public User GetUserById(int userId)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("userIdInput", userId);
+
+            return _connection.QueryFirstOrDefault<User>("GetUserById", parameters, commandType: CommandType.StoredProcedure);
         }
 
         public HashedCredentials GetUserCredentialsByUsername(string username)
