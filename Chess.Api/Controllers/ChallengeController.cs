@@ -28,7 +28,7 @@ namespace Chess.Api.Controllers
             _challengeHubContext = challengeHubContext;
         }
 
-        [HttpGet("/receivedChallenges")]
+        [HttpGet("receivedChallenges")]
         public ActionResult<ApiMethodResponse<IEnumerable<Challenge>>> GetReceivedChallenges()
         {
             var claims = HttpContext.User.Claims;
@@ -43,7 +43,7 @@ namespace Chess.Api.Controllers
             });
         }
 
-        [HttpGet("/sentChallenges")]
+        [HttpGet("sentChallenges")]
         public ActionResult<ApiMethodResponse<IEnumerable<Challenge>>> GetSentChallenges()
         {
             var claims = HttpContext.User.Claims;
@@ -59,7 +59,7 @@ namespace Chess.Api.Controllers
             });
         }
 
-        [HttpPost("/sendChallenge")]
+        [HttpPost("sendChallenge")]
         public async Task<ActionResult<ApiMethodResponse<bool>>> PostChallenge([FromBody] PostChallengeModel challengeModel)
         {
             var claims = HttpContext.User.Claims;
@@ -92,7 +92,7 @@ namespace Chess.Api.Controllers
             }
         }
 
-        [HttpDelete("{challengerId}/{recipientId}")]
+        [HttpDelete("delete/{challengerId}/{recipientId}")]
         public ActionResult<ApiMethodResponse<bool>> DeleteChallenge(int challengerId, int recipientId)
         {
             var claims = HttpContext.User.Claims;
