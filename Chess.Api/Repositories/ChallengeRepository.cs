@@ -2,6 +2,7 @@
 using Chess.Api.Repositories.Interfaces;
 using Dapper;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using System.Collections.Generic;
 using System.Data;
@@ -11,9 +12,10 @@ namespace Chess.Api.Repositories
     public class ChallengeRepository : IChallengeRepository
     {
         private readonly MySqlConnection _connection;
-        public ChallengeRepository(IConfiguration configuration)
+        public ChallengeRepository(IConfiguration configuration, ILogger<ChallengeRepository> logger)
         {
             var dbConnectionString = configuration.GetValue<string>("DbConnectionString");
+            logger.LogInformation($"ChallengeRepository DB connection string: {dbConnectionString}");
             _connection = new MySqlConnection(dbConnectionString);
         }
 

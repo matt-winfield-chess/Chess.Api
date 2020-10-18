@@ -2,6 +2,7 @@
 using Chess.Api.Repositories.Interfaces;
 using Dapper;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using System.Data;
 
@@ -10,9 +11,10 @@ namespace Chess.Api.Repositories
     public class UserRepository : IUserRepository
     {
         private readonly MySqlConnection _connection;
-        public UserRepository(IConfiguration configuration)
+        public UserRepository(IConfiguration configuration, ILogger<UserRepository> logger)
         {
             var dbConnectionString = configuration.GetValue<string>("DbConnectionString");
+            logger.LogInformation($"UserRepository DB connection string: {dbConnectionString}");
             _connection = new MySqlConnection(dbConnectionString);
         }
 
