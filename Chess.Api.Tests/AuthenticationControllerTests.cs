@@ -1,6 +1,7 @@
 ﻿using Chess.Api.Authentication.Interfaces;
 using Chess.Api.Controllers;
 using Chess.Api.Models;
+using Chess.Api.Models.Post;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;

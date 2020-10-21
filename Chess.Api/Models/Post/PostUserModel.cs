@@ -1,4 +1,4 @@
-﻿namespace Chess.Api.Models
+﻿namespace Chess.Api.Models.Post
 {
     public class PostUserModel
     {

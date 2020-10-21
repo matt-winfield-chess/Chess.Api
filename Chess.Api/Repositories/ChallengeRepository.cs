@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using System.Collections.Generic;
 using System.Data;
+using Chess.Api.Models.Database;
 
 namespace Chess.Api.Repositories
 {
@@ -33,6 +34,16 @@ namespace Chess.Api.Repositories
             parameters.Add("userIdInput", challengerId);
 
             return _connection.Query<ChallengeDatabaseModel>("GetChallengesByChallenger", parameters, commandType: CommandType.StoredProcedure);
+        }
+
+        public ChallengeDatabaseModel GetChallenge(int challengerId, int recipientId)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("challengerIdInput", challengerId);
+            parameters.Add("recipientIdInput", recipientId);
+
+            return _connection.QueryFirstOrDefault<ChallengeDatabaseModel>("GetChallenge", parameters,
+                commandType: CommandType.StoredProcedure);
         }
 
         public void CreateChallenge(int challengerId, int recipientId, ChallengerColor challengerColor)

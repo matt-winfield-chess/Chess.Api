@@ -1,4 +1,5 @@
 ﻿using Chess.Api.Models;
+using Chess.Api.Models.Post;
 using FluentValidation;
 
 namespace Chess.Api.Validators
