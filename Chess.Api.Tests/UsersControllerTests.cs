@@ -9,6 +9,7 @@ using Chess.Api.Responses;
 using MySql.Data.MySqlClient;
 using System.Runtime.Serialization;
 using Chess.Api.Authentication;
+using Chess.Api.Models.Post;
 using Chess.Api.Repositories.Interfaces;
 
 namespace Chess.Api.Tests

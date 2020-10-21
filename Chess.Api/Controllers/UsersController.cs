@@ -1,9 +1,8 @@
 ﻿using Chess.Api.Authentication.Interfaces;
-using Chess.Api.Models;
+using Chess.Api.Models.Post;
 using Chess.Api.Repositories.Interfaces;
 using Chess.Api.Responses;
 using Chess.Api.Validators;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -16,10 +15,10 @@ namespace Chess.Api.Controllers
     [Route("api/[controller]")]
     public class UsersController : Controller
     {
-        private IUserRepository _userRepository;
-        private ICredentialService _credentialService;
-        private PostUserModelValidator _postUserModelValidator;
-        private ILogger<UsersController> _logger;
+        private readonly IUserRepository _userRepository;
+        private readonly ICredentialService _credentialService;
+        private readonly PostUserModelValidator _postUserModelValidator;
+        private readonly ILogger<UsersController> _logger;
 
         public UsersController(IUserRepository userRepository, ICredentialService credentialService, ILogger<UsersController> logger)
         {

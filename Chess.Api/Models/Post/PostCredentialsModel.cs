@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Chess.Api.Models
+﻿namespace Chess.Api.Models.Post
 {
     public class PostCredentialsModel
     {

@@ -4,6 +4,8 @@ using Chess.Api.Repositories;
 using Chess.Api.Repositories.Interfaces;
 using Chess.Api.SignalR;
 using Chess.Api.SignalR.Hubs;
+using Chess.Api.Utils;
+using Chess.Api.Utils.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -181,12 +183,14 @@ namespace Chess.Api
         {
             services.AddSingleton<IUserRepository, UserRepository>();
             services.AddSingleton<IChallengeRepository, ChallengeRepository>();
+            services.AddSingleton<IGameRepository, GameRepository>();
         }
 
         private void RegisterServices(IServiceCollection services)
         {
             services.AddTransient<ICredentialService, CredentialService>();
             services.AddTransient<IJwtService, JwtService>();
+            services.AddTransient<IStringIdGenerator, StringIdGenerator>();
         }
     }
 }
