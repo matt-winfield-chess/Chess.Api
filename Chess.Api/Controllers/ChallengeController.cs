@@ -100,7 +100,7 @@ namespace Chess.Api.Controllers
         }
 
         [HttpPost("acceptChallenge")]
-        public ActionResult<ApiMethodResponse<Game>> AcceptChallenge([FromBody] PostChallengeAcceptModel challengeAcceptModel) {
+        public async Task<ActionResult<ApiMethodResponse<Game>>> AcceptChallenge([FromBody] PostChallengeAcceptModel challengeAcceptModel) {
             var id = GetRequesterUserId();
             if (id != challengeAcceptModel.RecipientId)
             {
@@ -129,6 +129,9 @@ namespace Chess.Api.Controllers
             var game = CreateNewGame(challenge, challenger, recipient);
 
             _challengeRepository.DeleteChallenge(challengeAcceptModel.ChallengerId, challengeAcceptModel.RecipientId);
+
+            await _challengeHubContext.Clients.User(challengeAcceptModel.ChallengerId.ToString())
+                .SendAsync(ChallengeHubOutgoingMessages.CHALLENGE_ACCEPTED, game);
 
             return Ok(new ApiMethodResponse<Game>
             {

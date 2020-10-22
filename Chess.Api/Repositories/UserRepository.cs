@@ -10,44 +10,50 @@ namespace Chess.Api.Repositories
 {
     public class UserRepository : IUserRepository
     {
-        private readonly MySqlConnection _connection;
+        private readonly string _connectionString;
         public UserRepository(IConfiguration configuration, ILogger<UserRepository> logger)
         {
             var dbConnectionString = configuration.GetValue<string>("DbConnectionString");
             logger.LogInformation($"UserRepository DB connection string: {dbConnectionString}");
-            _connection = new MySqlConnection(dbConnectionString);
+            _connectionString = dbConnectionString;
         }
 
         public int CreateUser(string username, string passwordHash, string salt)
         {
+            using var connection = new MySqlConnection(_connectionString);
+
             var parameters = new DynamicParameters();
             parameters.Add("usernameInput", username);
             parameters.Add("passwordHashInput", passwordHash);
             parameters.Add("passwordSaltInput", salt);
             parameters.Add("idOutput", direction: ParameterDirection.Output);
 
-            _connection.Execute("CreateUser", parameters, commandType: CommandType.StoredProcedure);
+            connection.Execute("CreateUser", parameters, commandType: CommandType.StoredProcedure);
 
             return parameters.Get<int>("idOutput");
         }
 
         public User GetUserById(int userId)
         {
+            using var connection = new MySqlConnection(_connectionString);
+
             var parameters = new DynamicParameters();
             parameters.Add("userIdInput", userId);
 
-            return _connection.QueryFirstOrDefault<User>("GetUserById", parameters, commandType: CommandType.StoredProcedure);
+            return connection.QueryFirstOrDefault<User>("GetUserById", parameters, commandType: CommandType.StoredProcedure);
         }
 
         public HashedCredentials GetUserCredentialsByUsername(string username)
         {
+            using var connection = new MySqlConnection(_connectionString);
+
             var parameters = new DynamicParameters();
             parameters.Add("usernameInput", username);
             parameters.Add("idOutput", direction: ParameterDirection.Output);
             parameters.Add("passwordHashOutput", direction: ParameterDirection.Output);
             parameters.Add("passwordSaltOutput", direction: ParameterDirection.Output);
 
-            _connection.Execute("GetUserCredentialsByUsername", parameters, commandType: CommandType.StoredProcedure);
+            connection.Execute("GetUserCredentialsByUsername", parameters, commandType: CommandType.StoredProcedure);
 
             try
             {

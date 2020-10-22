@@ -12,57 +12,67 @@ namespace Chess.Api.Repositories
 {
     public class ChallengeRepository : IChallengeRepository
     {
-        private readonly MySqlConnection _connection;
+        private readonly string _connectionString;
         public ChallengeRepository(IConfiguration configuration, ILogger<ChallengeRepository> logger)
         {
             var dbConnectionString = configuration.GetValue<string>("DbConnectionString");
             logger.LogInformation($"ChallengeRepository DB connection string: {dbConnectionString}");
-            _connection = new MySqlConnection(dbConnectionString);
+            _connectionString = dbConnectionString;
         }
 
         public IEnumerable<ChallengeDatabaseModel> GetChallengesByRecipient(int recipientId)
         {
+            using var connection = new MySqlConnection(_connectionString);
+
             var parameters = new DynamicParameters();
             parameters.Add("userIdInput", recipientId);
 
-            return _connection.Query<ChallengeDatabaseModel>("GetChallengesByRecipient", parameters, commandType: CommandType.StoredProcedure);
+            return connection.Query<ChallengeDatabaseModel>("GetChallengesByRecipient", parameters, commandType: CommandType.StoredProcedure);
         }
 
         public IEnumerable<ChallengeDatabaseModel> GetChallengesByChallenger(int challengerId)
         {
+            using var connection = new MySqlConnection(_connectionString);
+
             var parameters = new DynamicParameters();
             parameters.Add("userIdInput", challengerId);
 
-            return _connection.Query<ChallengeDatabaseModel>("GetChallengesByChallenger", parameters, commandType: CommandType.StoredProcedure);
+            return connection.Query<ChallengeDatabaseModel>("GetChallengesByChallenger", parameters, commandType: CommandType.StoredProcedure);
         }
 
         public ChallengeDatabaseModel GetChallenge(int challengerId, int recipientId)
         {
+            using var connection = new MySqlConnection(_connectionString);
+
             var parameters = new DynamicParameters();
             parameters.Add("challengerIdInput", challengerId);
             parameters.Add("recipientIdInput", recipientId);
 
-            return _connection.QueryFirstOrDefault<ChallengeDatabaseModel>("GetChallenge", parameters,
+            return connection.QueryFirstOrDefault<ChallengeDatabaseModel>("GetChallenge", parameters,
                 commandType: CommandType.StoredProcedure);
         }
 
         public void CreateChallenge(int challengerId, int recipientId, ChallengerColor challengerColor)
         {
+            using var connection = new MySqlConnection(_connectionString);
+
             var parameters = new DynamicParameters();
             parameters.Add("challengerIdInput", challengerId);
             parameters.Add("recipientIdInput", recipientId);
             parameters.Add("challengerColorInput", challengerColor);
 
-            _connection.Execute("CreateChallenge", parameters, commandType: CommandType.StoredProcedure);
+            connection.Execute("CreateChallenge", parameters, commandType: CommandType.StoredProcedure);
         }
 
         public void DeleteChallenge(int challengerId, int recipientId)
         {
+            using var connection = new MySqlConnection(_connectionString);
+
             var parameters = new DynamicParameters();
             parameters.Add("challengerIdInput", challengerId);
             parameters.Add("recipientIdInput", recipientId);
 
-            _connection.Execute("DeleteChallenge", parameters, commandType: CommandType.StoredProcedure);
+            connection.Execute("DeleteChallenge", parameters, commandType: CommandType.StoredProcedure);
         }
     }
 }
