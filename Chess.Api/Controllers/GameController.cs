@@ -19,7 +19,7 @@ namespace Chess.Api.Controllers
             _userRepository = userRepository;
         }
 
-        [HttpGet("receivedChallenges/{gameId}")]
+        [HttpGet("{gameId}")]
         public ActionResult<ApiMethodResponse<Game>> GetGame(string gameId)
         {
             var gameDatabaseResponse = _gameRepository.GetGameById(gameId);
