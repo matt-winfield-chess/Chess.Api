@@ -61,5 +61,16 @@ namespace Chess.Api.Repositories
 
             return connection.Query<MoveDatabaseModel>("GetGameMovesById", parameters, commandType: CommandType.StoredProcedure);
         }
+
+        public IEnumerable<GameDatabaseModel> GetUserActiveGames(int userId)
+        {
+            using var connection = new MySqlConnection(_connectionString);
+
+            var parameters = new DynamicParameters();
+            parameters.Add("userIdInput", userId);
+
+            return connection.Query<GameDatabaseModel>("GetActiveGames", parameters,
+                commandType: CommandType.StoredProcedure);
+        }
     }
 }
