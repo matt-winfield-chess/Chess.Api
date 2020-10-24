@@ -10,5 +10,6 @@ namespace Chess.Api.Repositories.Interfaces
         GameDatabaseModel GetGameById(string gameId);
         void AddMoveToGame(string gameId, string move);
         IEnumerable<MoveDatabaseModel> GetMovesByGameId(string gameId);
+        IEnumerable<GameDatabaseModel> GetUserActiveGames(int userId);
     }
 }

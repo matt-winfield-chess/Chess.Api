@@ -48,6 +48,7 @@ namespace Chess.Api
 
             RegisterRepositories(services);
             RegisterServices(services);
+            RegisterUtils(services);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -190,7 +191,12 @@ namespace Chess.Api
         {
             services.AddTransient<ICredentialService, CredentialService>();
             services.AddTransient<IJwtService, JwtService>();
+        }
+
+        private void RegisterUtils(IServiceCollection services)
+        {
             services.AddTransient<IStringIdGenerator, StringIdGenerator>();
+            services.AddTransient<IClaimsProvider, ClaimsProvider>();
         }
     }
 }

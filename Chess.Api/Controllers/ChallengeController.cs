@@ -1,18 +1,18 @@
-﻿using System;
-using Chess.Api.Models;
-using Chess.Api.Repositories.Interfaces;
-using Chess.Api.Responses;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.AspNetCore.SignalR;
-using Chess.Api.SignalR.Hubs;
-using System.Threading.Tasks;
+﻿using Chess.Api.Models;
 using Chess.Api.Models.Database;
 using Chess.Api.Models.Post;
+using Chess.Api.Repositories.Interfaces;
+using Chess.Api.Responses;
+using Chess.Api.SignalR.Hubs;
 using Chess.Api.SignalR.Messages;
 using Chess.Api.Utils.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Chess.Api.Controllers
 {
@@ -25,25 +25,34 @@ namespace Chess.Api.Controllers
         private readonly IUserRepository _userRepository;
         private readonly IGameRepository _gameRepository;
         private readonly IStringIdGenerator _stringIdGenerator;
+        private readonly IClaimsProvider _claimsProvider;
         private readonly IHubContext<ChallengeHub> _challengeHubContext;
         private readonly Random _random = new Random();
 
         public ChallengeController(IChallengeRepository challengeRepository, IUserRepository userRepository, IGameRepository gameRepository,
-            IStringIdGenerator stringIdGenerator, IHubContext<ChallengeHub> challengeHubContext)
+            IStringIdGenerator stringIdGenerator, IClaimsProvider claimsProvider, IHubContext<ChallengeHub> challengeHubContext)
         {
             _challengeRepository = challengeRepository;
             _userRepository = userRepository;
             _gameRepository = gameRepository;
             _stringIdGenerator = stringIdGenerator;
+            _claimsProvider = claimsProvider;
             _challengeHubContext = challengeHubContext;
         }
 
         [HttpGet("receivedChallenges")]
         public ActionResult<ApiMethodResponse<IEnumerable<Challenge>>> GetReceivedChallenges()
         {
-            var id = GetRequesterUserId();
+            var id = _claimsProvider.GetId(HttpContext);
+            if (id == null)
+            {
+                return Unauthorized(new ApiMethodResponse<IEnumerable<Challenge>>
+                {
+                    Errors = new[] {"Invalid ID in token"}
+                });
+            }
 
-            var databaseChallenges = _challengeRepository.GetChallengesByRecipient(id);
+            var databaseChallenges = _challengeRepository.GetChallengesByRecipient(id.Value);
 
             var challenges = MapDatabaseChallengeToDisplayChallenge(databaseChallenges);
 
@@ -55,9 +64,16 @@ namespace Chess.Api.Controllers
         [HttpGet("sentChallenges")]
         public ActionResult<ApiMethodResponse<IEnumerable<Challenge>>> GetSentChallenges()
         {
-            var id = GetRequesterUserId();
+            var id = _claimsProvider.GetId(HttpContext);
+            if (id == null)
+            {
+                return Unauthorized(new ApiMethodResponse<IEnumerable<Challenge>>
+                {
+                    Errors = new[] { "Invalid ID in token" }
+                });
+            }
 
-            var databaseChallenges = _challengeRepository.GetChallengesByChallenger(id);
+            var databaseChallenges = _challengeRepository.GetChallengesByChallenger(id.Value);
 
             var challenges = MapDatabaseChallengeToDisplayChallenge(databaseChallenges);
 
@@ -68,16 +84,24 @@ namespace Chess.Api.Controllers
         }
 
         [HttpPost("sendChallenge")]
-        public async Task<ActionResult<ApiMethodResponse<bool>>> PostChallenge([FromBody] PostChallengeModel challengeModel)
+        public async Task<ActionResult<ApiMethodResponse<object>>> PostChallenge([FromBody] PostChallengeModel challengeModel)
         {
-            var id = GetRequesterUserId();
+            var id = _claimsProvider.GetId(HttpContext);
 
-            var challenger = _userRepository.GetUserById(id);
+            if (id == null)
+            {
+                return Unauthorized(new ApiMethodResponse<IEnumerable<object>>
+                {
+                    Errors = new[] { "Invalid ID in token" }
+                });
+            }
+
+            var challenger = _userRepository.GetUserById(id.Value);
             var recipient = _userRepository.GetUserCredentialsByUsername(challengeModel.Username);
 
             if (recipient == null)
             {
-                return NotFound(new ApiMethodResponse<bool>
+                return NotFound(new ApiMethodResponse<object>
                 {
                     Errors = new [] { $"User '{challengeModel.Username}' could not be found!" }
                 });
@@ -85,14 +109,14 @@ namespace Chess.Api.Controllers
 
             try
             {
-                _challengeRepository.CreateChallenge(id, recipient.UserId, challengeModel.ChallengerColor);
+                _challengeRepository.CreateChallenge(id.Value, recipient.UserId, challengeModel.ChallengerColor);
 
                 await SendNewChallengeMessage(challengeModel, challenger, recipient);
 
-                return Ok(new ApiMethodResponse<bool>());
+                return Ok(new ApiMethodResponse<object>());
             } catch
             {
-                return BadRequest(new ApiMethodResponse<bool>
+                return BadRequest(new ApiMethodResponse<object>
                 {
                     Errors = new [] { $"Challenge has already been sent to '{challengeModel.Username}'" }
                 });
@@ -101,8 +125,8 @@ namespace Chess.Api.Controllers
 
         [HttpPost("acceptChallenge")]
         public async Task<ActionResult<ApiMethodResponse<Game>>> AcceptChallenge([FromBody] PostChallengeAcceptModel challengeAcceptModel) {
-            var id = GetRequesterUserId();
-            if (id != challengeAcceptModel.RecipientId)
+            var id = _claimsProvider.GetId(HttpContext);
+            if (id == null || id != challengeAcceptModel.RecipientId)
             {
                 return Unauthorized(new ApiMethodResponse<Game>
                 {
@@ -206,13 +230,6 @@ namespace Chess.Api.Controllers
             }
 
             return isChallengerWhite;
-        }
-
-
-        private int GetRequesterUserId()
-        {
-            var claims = HttpContext.User.Claims;
-            return int.Parse(claims.FirstOrDefault(claim => claim.Type == "id")?.Value);
         }
     }
 }

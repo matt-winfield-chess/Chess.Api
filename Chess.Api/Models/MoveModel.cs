@@ -1,8 +1,8 @@
 ﻿namespace Chess.Api.Models
 {
-    public class Move
+    public class MoveModel
     {
-        public string MoveString { get; set; }
+        public string Move { get; set; }
         public int MoveNumber { get; set; }
     }
 }

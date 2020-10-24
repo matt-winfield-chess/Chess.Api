@@ -7,6 +7,7 @@ namespace Chess.Api.Models
         public string Id { get; set; }
         public User WhitePlayer { get; set; }
         public User BlackPlayer { get; set; }
-        public IEnumerable<Move> Moves { get; set; }
+        public IEnumerable<MoveModel> Moves { get; set; }
+        public bool Active { get; set; }
     }
 }
