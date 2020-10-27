@@ -82,6 +82,7 @@ namespace Chess.Api
             {
                 endpoints.MapControllers();
                 endpoints.MapHub<ChallengeHub>("/ChallengeHub");
+                endpoints.MapHub<GameHub>("/GameHub");
             });
         }
 

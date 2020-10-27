@@ -2,7 +2,7 @@
 {
     public static class ChallengeHubOutgoingMessages
     {
-        public static string NEW_CHALLENGE = "NewChallenge";
-        public static string CHALLENGE_ACCEPTED = "ChallengeAccepted";
+        public const string NEW_CHALLENGE = "NewChallenge";
+        public const string CHALLENGE_ACCEPTED = "ChallengeAccepted";
     }
 }
