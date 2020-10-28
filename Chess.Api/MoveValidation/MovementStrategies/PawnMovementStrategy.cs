@@ -93,7 +93,7 @@ namespace Chess.Api.MoveValidation.MovementStrategies
                 return false;
             }
 
-            return movingPiece.Color == capturedPiece.Color;
+            return movingPiece.Color != capturedPiece.Color;
         }
 
         private bool IsValidMoveForward(Move move, Piece[,] piecePositions)
@@ -124,7 +124,7 @@ namespace Chess.Api.MoveValidation.MovementStrategies
 
         private bool IsForwardMovementBlocked(Move move, int distance, int correctDirection, Piece[,] piecePositions)
         {
-            for (int i = 1; i <= distance; i++)
+            for (int i = 1; i <= Math.Abs(distance); i++)
             {
                 var piece = piecePositions[move.StartPosition.X, move.StartPosition.Y + (i * correctDirection)];
                 if (piece != null)

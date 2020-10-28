@@ -15,6 +15,14 @@ namespace Chess.Api.MoveValidation
             var parsedMove = _coordinateNotationParser.ParseNotationMove(move);
             var piece = boardState.PiecePositions[parsedMove.StartPosition.X, parsedMove.StartPosition.Y];
 
+            if (piece == null)
+            {
+                return new MoveValidationResult
+                {
+                    IsValid = false
+                };
+            }
+
             if (!IsCorrectColor(piece, boardState) || parsedMove.StartPosition.Equals(parsedMove.EndPosition))
             {
                 return new MoveValidationResult

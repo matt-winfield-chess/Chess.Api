@@ -6,7 +6,12 @@
         public Coordinate EndPosition { get; set; }
         public string MoveString
         {
-            get => $"{StartPosition}{EndPosition}";
+            get => $"{StartPosition.ToString()}{EndPosition.ToString()}";
+        }
+
+        public override string ToString()
+        {
+            return MoveString;
         }
 
         public override bool Equals(object value)

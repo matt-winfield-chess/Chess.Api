@@ -35,7 +35,8 @@
 
         public string ConvertCoordinateToString(Coordinate coordinate)
         {
-            return $"{(char) (coordinate.X) + characterToNumberOffset}{coordinate.Y + 1}";
+            char x = (char) (characterToNumberOffset + coordinate.X);
+            return $"{x}{coordinate.Y + 1}";
         }
     }
 }
