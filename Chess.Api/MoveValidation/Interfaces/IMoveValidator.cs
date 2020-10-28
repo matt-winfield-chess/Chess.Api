@@ -2,5 +2,6 @@
 {
     public interface IMoveValidator
     {
+        MoveValidationResult ValidateMove(string currentFen, string move);
     }
 }

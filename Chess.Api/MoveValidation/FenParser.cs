@@ -41,7 +41,7 @@ namespace Chess.Api.MoveValidation
             var piecePositions = new Piece[8, 8];
 
             var x = 0;
-            var y = 0;
+            var y = 7;
 
             foreach (char character in position)
             {
@@ -50,7 +50,7 @@ namespace Chess.Api.MoveValidation
                     x += (int) char.GetNumericValue(character);
                 } else if (character == '/')
                 {
-                    y += 1;
+                    y -= 1;
                     x = 0;
                 }
                 else

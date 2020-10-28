@@ -25,7 +25,7 @@ namespace Chess.Api.Tests
         {
             var result = _parser.ParseFen(fen);
 
-            var piece = result.PiecePositions[0, 1];
+            var piece = result.PiecePositions[0, 6];
 
             piece.Should().NotBeNull();
             piece.Color.Should().Be(Color.White);
@@ -42,7 +42,7 @@ namespace Chess.Api.Tests
         {
             var result = _parser.ParseFen(fen);
 
-            var piece = result.PiecePositions[0, 1];
+            var piece = result.PiecePositions[0, 6];
 
             piece.Should().NotBeNull();
             piece.Color.Should().Be(Color.Black);
@@ -73,8 +73,8 @@ namespace Chess.Api.Tests
             result.CastlingState.BlackQueenside.Should().Be(blackQueenside);
         }
 
-        [TestCase("8/8/8/8/8/8/8/8 w q e6 0 1", 4, 2)]
-        [TestCase("8/8/8/8/8/8/8/8 w q d3 0 1", 3, 5)]
+        [TestCase("8/8/8/8/8/8/8/8 w q e6 0 1", 4, 5)]
+        [TestCase("8/8/8/8/8/8/8/8 w q d3 0 1", 3, 2)]
         public void ParseFen_ShouldParseCorrectEnPassantTargetSquare(string fen, int expectedX, int expectedY)
         {
             var result = _parser.ParseFen(fen);
