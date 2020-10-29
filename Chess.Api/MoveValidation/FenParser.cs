@@ -20,8 +20,7 @@ namespace Chess.Api.MoveValidation
 
         public FenParser()
         {
-            // Invert the character-to-piece dictionary so it can be reversed;
-            _pieceTypeToCharacter = _characterToPieceType.ToDictionary(dict => dict.Value, dict => dict.Key);
+            _pieceTypeToCharacter = _characterToPieceType.ToDictionary(dict => dict.Value, dict => dict.Key); // Invert character to piece dictionary
         }
 
         public BoardState ParseFen(string fen)
@@ -32,7 +31,7 @@ namespace Chess.Api.MoveValidation
                 throw new ArgumentException("Invalid FEN string");
             }
 
-            var state = new BoardState()
+            var state = new BoardState
             {
                 PiecePositions = ParsePieces(fenComponents[0]),
                 ActiveColor = ParseActiveColor(fenComponents[1]),
@@ -111,7 +110,7 @@ namespace Chess.Api.MoveValidation
 
         private Piece GetPieceFromCharacter(char character)
         {
-            return new Piece()
+            return new Piece
             {
                 Color = char.IsUpper(character) ? Color.White : Color.Black,
                 Type = _characterToPieceType[char.ToLower(character)]

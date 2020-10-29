@@ -24,7 +24,7 @@ namespace Chess.Api.MoveValidation.MovementStrategies
 
             if (IsEnPassantCapture(move, boardState))
             {
-                return new MoveValidationResult()
+                return new MoveValidationResult
                 {
                     IsValid = true,
                     EnPassantCapture = GetEnPassantCapturedCoordinate(move)

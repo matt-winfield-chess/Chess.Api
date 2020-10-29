@@ -24,5 +24,10 @@
             var move = value as Move;
             return StartPosition.Equals(move.StartPosition) && EndPosition.Equals(move.EndPosition);
         }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 }

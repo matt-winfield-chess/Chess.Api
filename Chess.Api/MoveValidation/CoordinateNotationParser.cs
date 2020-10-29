@@ -1,4 +1,6 @@
-﻿namespace Chess.Api.MoveValidation
+﻿using System.Globalization;
+
+namespace Chess.Api.MoveValidation
 {
     public class CoordinateNotationParser
     {
@@ -6,7 +8,7 @@
 
         public Coordinate ParseNotationCoordinate(string notation)
         {
-            var lowercaseNotation = notation.ToLower().Trim();
+            var lowercaseNotation = notation.ToLower(CultureInfo.InvariantCulture).Trim();
 
             if (lowercaseNotation.Length != 2) return null;
 
@@ -22,7 +24,7 @@
 
         public Move ParseNotationMove(string notation)
         {
-            var lowercaseNotation = notation.ToLower().Trim();
+            var lowercaseNotation = notation.ToLower(CultureInfo.InvariantCulture).Trim();
 
             if (lowercaseNotation.Length != 4) return null;
 
