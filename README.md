@@ -5,3 +5,6 @@ Badge](https://app.codacy.com/project/badge/Grade/e23ad9e1e48c44b2bcfb2c3663db50
 
 ## Compiling
 Requires dotnet core 3.1 SDK, available at https://dotnet.microsoft.com/download/dotnet-core/3.1
+
+## Testing
+Test with `dotnet test`. Generate a code coverage report by running `test-coverage.bat`

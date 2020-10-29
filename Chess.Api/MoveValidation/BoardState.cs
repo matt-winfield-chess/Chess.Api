@@ -16,9 +16,11 @@
             PiecePositions = piecePositions;
         }
 
-        public Piece GetPiece(int x, int y)
+        public string Fen
         {
-            return PiecePositions[x, y];
+            get => _fenParser.ConvertBoardStateToFen(this);
         }
+
+        private readonly FenParser _fenParser = new FenParser();
     }
 }

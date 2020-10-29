@@ -57,7 +57,7 @@ namespace Chess.Api.Controllers
                 _logger.LogError($"User creation failed - {e.Message}");
                 return BadRequest(new ApiMethodResponse<int>
                 {
-                    Errors = new string[] { "User account creation failed" }
+                    Errors = new [] { "User account creation failed" }
                 });
             }
         }

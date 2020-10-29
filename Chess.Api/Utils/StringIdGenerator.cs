@@ -9,7 +9,12 @@ namespace Chess.Api.Utils
         private const string VALID_CHARACTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
         private readonly Random _random = new Random();
 
-        public string GenerateId(int length = 10)
+        public string GenerateId()
+        {
+            return GenerateId(10);
+        }
+
+        public string GenerateId(int length)
         {
             var characters = new char[length];
 

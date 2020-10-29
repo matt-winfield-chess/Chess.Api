@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Chess.Api.MoveValidation
 {
     public class FenParser
     {
-        private Dictionary<char, PieceType> _pieceTypeCharacterMap = new Dictionary<char, PieceType>
+        private readonly Dictionary<char, PieceType> _characterToPieceType = new Dictionary<char, PieceType>
         {
             {'p', PieceType.Pawn},
             {'n', PieceType.Knight},
@@ -14,6 +15,14 @@ namespace Chess.Api.MoveValidation
             {'q', PieceType.Queen},
             {'k', PieceType.King}
         };
+
+        private readonly Dictionary<PieceType, char> _pieceTypeToCharacter;
+
+        public FenParser()
+        {
+            // Invert the character-to-piece dictionary so it can be reversed;
+            _pieceTypeToCharacter = _characterToPieceType.ToDictionary(dict => dict.Value, dict => dict.Key);
+        }
 
         public BoardState ParseFen(string fen)
         {
@@ -34,6 +43,16 @@ namespace Chess.Api.MoveValidation
             };
 
             return state;
+        }
+
+        public string ConvertBoardStateToFen(BoardState state)
+        {
+            var pieces = GetPiecesFen(state.PiecePositions);
+            var activeColor = state.ActiveColor == Color.White ? 'w' : 'b';
+            var castlingState = GetCastlingStateFen(state.CastlingState);
+            var enPassantTargetSquare = state.EnPassantTarget != null ? state.EnPassantTarget.ToString() : "-";
+
+            return $"{pieces} {activeColor} {castlingState} {enPassantTargetSquare} {state.HalfmoveClock} {state.FullmoveNumber}";
         }
 
         private Piece[,] ParsePieces(string position)
@@ -95,8 +114,86 @@ namespace Chess.Api.MoveValidation
             return new Piece()
             {
                 Color = char.IsUpper(character) ? Color.White : Color.Black,
-                Type = _pieceTypeCharacterMap[char.ToLower(character)]
+                Type = _characterToPieceType[char.ToLower(character)]
             };
+        }
+
+        private string GetPiecesFen(Piece[,] piecePositions)
+        {
+            string output = "";
+            int spaceCount = 0;
+            for (int y = piecePositions.GetLength(1) - 1; y >= 0; y--)
+            {
+                for (int x = 0; x < piecePositions.GetLength(0); x++)
+                {
+                    var piece = piecePositions[x, y];
+                    if (piece == null)
+                    {
+                        spaceCount += 1;
+                    }
+                    else
+                    {
+                        if (spaceCount > 0)
+                        {
+                            output += spaceCount.ToString();
+                            spaceCount = 0;
+                        }
+
+                        char character = _pieceTypeToCharacter[piece.Type];
+
+                        if (piece.Color == Color.White)
+                        {
+                            character = char.ToUpper(character);
+                        }
+
+                        output += character;
+                    }
+                }
+
+                if (spaceCount > 0)
+                {
+                    output += spaceCount;
+                    spaceCount = 0;
+                }
+
+                if (y != 0)
+                {
+                    output += '/';
+                }
+            }
+
+            return output;
+        }
+
+        private string GetCastlingStateFen(CastlingState state)
+        {
+            if (!state.WhiteKingside && !state.WhiteQueenside && !state.BlackKingside && !state.BlackQueenside)
+            {
+                return "-";
+            }
+
+            string output = "";
+            if (state.WhiteKingside)
+            {
+                output += 'K';
+            }
+
+            if (state.WhiteQueenside)
+            {
+                output += 'Q';
+            }
+
+            if (state.BlackKingside)
+            {
+                output += 'k';
+            }
+
+            if (state.BlackQueenside)
+            {
+                output += 'q';
+            }
+
+            return output;
         }
     }
 }

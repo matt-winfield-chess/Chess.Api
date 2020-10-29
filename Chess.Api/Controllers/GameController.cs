@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Chess.Api.Models;
+using Chess.Api.Models.Database;
 using Chess.Api.Repositories.Interfaces;
 using Chess.Api.Responses;
 using Chess.Api.Utils.Interfaces;
@@ -27,7 +28,6 @@ namespace Chess.Api.Controllers
         public ActionResult<ApiMethodResponse<Game>> GetGame(string gameId)
         {
             var gameDatabaseResponse = _gameRepository.GetGameById(gameId);
-            var movesDatabaseResponse = _gameRepository.GetMovesByGameId(gameId);
 
             if (gameDatabaseResponse == null)
             {
@@ -37,23 +37,9 @@ namespace Chess.Api.Controllers
                 });
             }
 
-            var whitePlayer = _userRepository.GetUserById(gameDatabaseResponse.WhitePlayerId);
-            var blackPlayer = _userRepository.GetUserById(gameDatabaseResponse.BlackPlayerId);
-            var moves = movesDatabaseResponse.Select(move => new MoveModel()
-            {
-                Move = move.Move,
-                MoveNumber = move.MoveNumber
-            });
-
             return Ok(new ApiMethodResponse<Game>
             {
-                Data = new Game
-                {
-                    Id = gameId,
-                    WhitePlayer = whitePlayer,
-                    BlackPlayer = blackPlayer,
-                    Moves = moves
-                }
+                Data = MapGameDatabaseModelToGame(gameDatabaseResponse)
             });
         }
 
@@ -72,7 +58,17 @@ namespace Chess.Api.Controllers
 
             var gameDatabaseModels = _gameRepository.GetUserActiveGames(id.Value);
 
-            var games = gameDatabaseModels.Select(game => new Game
+            var games = gameDatabaseModels.Select(MapGameDatabaseModelToGame);
+
+            return Ok(new ApiMethodResponse<IEnumerable<Game>>
+            {
+                Data = games
+            });
+        }
+
+        private Game MapGameDatabaseModelToGame(GameDatabaseModel game)
+        {
+            return new Game
             {
                 Id = game.Id,
                 WhitePlayer = _userRepository.GetUserById(game.WhitePlayerId),
@@ -82,13 +78,9 @@ namespace Chess.Api.Controllers
                     Move = move.Move,
                     MoveNumber = move.MoveNumber
                 }),
-                Active = game.Active
-            });
-
-            return Ok(new ApiMethodResponse<IEnumerable<Game>>
-            {
-                Data = games
-            });
+                Active = game.Active,
+                Fen = game.Fen
+            };
         }
     }
 }
