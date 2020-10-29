@@ -22,5 +22,10 @@
             var coordinate = obj as Coordinate;
             return X == coordinate.X && Y == coordinate.Y;
         }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 }

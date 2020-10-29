@@ -14,14 +14,14 @@
             return MoveString;
         }
 
-        public override bool Equals(object value)
+        public override bool Equals(object obj)
         {
-            if (!(value is Move))
+            if (!(obj is Move))
             {
                 return false;
             }
 
-            var move = value as Move;
+            var move = obj as Move;
             return StartPosition.Equals(move.StartPosition) && EndPosition.Equals(move.EndPosition);
         }
 
