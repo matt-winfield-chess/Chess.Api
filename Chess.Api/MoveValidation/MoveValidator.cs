@@ -4,9 +4,9 @@ namespace Chess.Api.MoveValidation
 {
     public class MoveValidator : IMoveValidator
     {
-        private FenParser _fenParser = new FenParser();
-        private CoordinateNotationParser _coordinateNotationParser = new CoordinateNotationParser();
-        private MovementStrategyProvider _movementStrategyProvider = new MovementStrategyProvider();
+        private readonly FenParser _fenParser = new FenParser();
+        private readonly CoordinateNotationParser _coordinateNotationParser = new CoordinateNotationParser();
+        private readonly MovementStrategyProvider _movementStrategyProvider = new MovementStrategyProvider();
 
         public MoveValidationResult ValidateMove(string currentFen, string move)
         {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Chess.Api.MoveValidation
 {
@@ -119,7 +120,7 @@ namespace Chess.Api.MoveValidation
 
         private string GetPiecesFen(Piece[,] piecePositions)
         {
-            string output = "";
+            StringBuilder stringBuilder = new StringBuilder();
             int spaceCount = 0;
             for (int y = piecePositions.GetLength(1) - 1; y >= 0; y--)
             {
@@ -134,7 +135,7 @@ namespace Chess.Api.MoveValidation
                     {
                         if (spaceCount > 0)
                         {
-                            output += spaceCount.ToString();
+                            stringBuilder.Append(spaceCount.ToString());
                             spaceCount = 0;
                         }
 
@@ -145,23 +146,23 @@ namespace Chess.Api.MoveValidation
                             character = char.ToUpper(character);
                         }
 
-                        output += character;
+                        stringBuilder.Append(character);
                     }
                 }
 
                 if (spaceCount > 0)
                 {
-                    output += spaceCount;
+                    stringBuilder.Append(spaceCount);
                     spaceCount = 0;
                 }
 
                 if (y != 0)
                 {
-                    output += '/';
+                    stringBuilder.Append('/');
                 }
             }
 
-            return output;
+            return stringBuilder.ToString();
         }
 
         private string GetCastlingStateFen(CastlingState state)
