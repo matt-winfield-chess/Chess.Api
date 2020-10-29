@@ -9,5 +9,6 @@ namespace Chess.Api.Models
         public User BlackPlayer { get; set; }
         public IEnumerable<MoveModel> Moves { get; set; }
         public bool Active { get; set; }
+        public string Fen { get; set; }
     }
 }

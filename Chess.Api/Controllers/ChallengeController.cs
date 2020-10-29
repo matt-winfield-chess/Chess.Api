@@ -56,7 +56,8 @@ namespace Chess.Api.Controllers
 
             var challenges = MapDatabaseChallengeToDisplayChallenge(databaseChallenges);
 
-            return Ok(new ApiMethodResponse<IEnumerable<Challenge>>() {
+            return Ok(new ApiMethodResponse<IEnumerable<Challenge>>
+            {
                 Data = challenges
             });
         }
@@ -77,7 +78,7 @@ namespace Chess.Api.Controllers
 
             var challenges = MapDatabaseChallengeToDisplayChallenge(databaseChallenges);
 
-            return Ok(new ApiMethodResponse<IEnumerable<Challenge>>()
+            return Ok(new ApiMethodResponse<IEnumerable<Challenge>>
             {
                 Data = challenges
             });

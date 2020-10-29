@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using System.Collections.Generic;
 using System.Data;
+using Chess.Api.Constants;
 
 namespace Chess.Api.Repositories
 {
@@ -21,12 +22,18 @@ namespace Chess.Api.Repositories
 
         public void CreateGame(string gameId, int whitePlayerId, int blackPlayerId)
         {
+            CreateGame(gameId, whitePlayerId, blackPlayerId, GameConstants.STANDARD_START_POSITION_FEN);
+        }
+
+        public void CreateGame(string gameId, int whitePlayerId, int blackPlayerId, string fen)
+        {
             using var connection = new MySqlConnection(_connectionString);
 
             var parameters = new DynamicParameters();
             parameters.Add("idInput", gameId);
             parameters.Add("whitePlayerIdInput", whitePlayerId);
             parameters.Add("blackPlayerIdInput", blackPlayerId);
+            parameters.Add("fenInput", fen);
 
             connection.Execute("CreateGame", parameters, commandType: CommandType.StoredProcedure);
         }
@@ -41,13 +48,14 @@ namespace Chess.Api.Repositories
             return connection.QueryFirstOrDefault<GameDatabaseModel>("GetGameById", parameters, commandType: CommandType.StoredProcedure);
         }
 
-        public void AddMoveToGame(string gameId, string move)
+        public void AddMoveToGame(string gameId, string move, string newFen)
         {
             using var connection = new MySqlConnection(_connectionString);
 
             var parameters = new DynamicParameters();
             parameters.Add("gameIdInput", gameId);
             parameters.Add("moveInput", move);
+            parameters.Add("newFenInput", newFen);
 
             connection.Execute("AddMoveToGame", parameters, commandType: CommandType.StoredProcedure);
         }

@@ -6,5 +6,6 @@
         public int WhitePlayerId { get; set; }
         public int BlackPlayerId { get; set; }
         public bool Active { get; set; }
+        public string Fen { get; set; }
     }
 }

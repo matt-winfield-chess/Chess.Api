@@ -2,6 +2,7 @@
 {
     public interface IStringIdGenerator
     {
-        public string GenerateId(int length = 10);
+        public string GenerateId();
+        public string GenerateId(int length);
     }
 }

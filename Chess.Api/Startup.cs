@@ -20,6 +20,8 @@ using Serilog;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using Chess.Api.MoveValidation;
+using Chess.Api.MoveValidation.Interfaces;
 
 namespace Chess.Api
 {
@@ -198,6 +200,10 @@ namespace Chess.Api
         {
             services.AddTransient<IStringIdGenerator, StringIdGenerator>();
             services.AddTransient<IClaimsProvider, ClaimsProvider>();
+            services.AddTransient<IMoveValidator, MoveValidator>();
+            services.AddTransient<IMoveHandler, MoveHandler>();
+            services.AddTransient<CoordinateNotationParser>();
+            services.AddTransient<FenParser>();
         }
     }
 }
