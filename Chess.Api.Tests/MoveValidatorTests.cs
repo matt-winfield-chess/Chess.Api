@@ -263,5 +263,24 @@ namespace Chess.Api.Tests
 
             result.IsValid.Should().BeFalse();
         }
+
+        [TestCase("8/8/3q4/8/3B4/3K4/8/8 w - - 0 1", "d4e5", "moving bishop discovers vertical check by queen")]
+        [TestCase("8/8/8/3qpPK1/8/8/8/8 w - e6 0 1", "f5e6", "en-passant capture discovers horizontal check by queen")]
+        [TestCase("8/5q2/4B3/3K4/8/8/8/8 w - - 0 1", "e6d7", "moving bishop discovers diagonal check by queen")]
+        [TestCase("8/8/8/3KBq2/8/8/8/8 w - - 0 1", "e5d6", "moving bishop discovers horizontal check by queen")]
+        [TestCase("8/8/8/3K1q2/8/6B1/8/8 w - - 0 1", "g3f2", "moving the bishop to this square does not block the check by the queen")]
+        [TestCase("8/8/8/3K1k2/8/8/8/8 w - - 0 1", "d5e5", "the king cannot be moved to this square because it is controlled by the opponent king")]
+        [TestCase("8/4p3/8/4K3/8/8/8/8 w - - 0 1", "e5d6", "the king cannot move to this square because the pawn controls it")]
+        [TestCase("8/4p3/8/4K3/8/8/8/8 w - - 0 1", "e5f6", "the king cannot move to this square because the pawn controls it")]
+        [TestCase("8/8/8/2K1n3/8/8/8/8 w - - 0 1", "c5c6", "the king cannot move to this square because the knight controls it")]
+        [TestCase("8/8/8/2K1n3/8/8/8/8 w - - 0 1", "c5c4", "the king cannot move to this square because the knight controls it")]
+        [TestCase("8/8/4K3/4n3/8/8/8/8 w - - 0 1", "e6d7", "the king cannot move to this square because the knight controls it")]
+        [TestCase("8/8/4K3/4n3/8/8/8/8 w - - 0 1", "e6f7", "the king cannot move to this square because the knight controls it")]
+        public void MoveValidator_ShouldRetrunInvalid_WhenMoveWouldPlaceOwnKingInCheck(string fen, string move, string because)
+        {
+            var result = _moveValidator.ValidateMove(fen, move);
+
+            result.IsValid.Should().BeFalse(because);
+        }
     }
 }
