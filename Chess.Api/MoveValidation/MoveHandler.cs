@@ -26,6 +26,15 @@ namespace Chess.Api.MoveValidation
                 newBoardState.FullmoveNumber += 1;
             }
 
+            if (moveValidation.ShouldResetHalfmoveClock)
+            {
+                newBoardState.HalfmoveClock = 0;
+            }
+            else
+            {
+                newBoardState.HalfmoveClock += 1;
+            }
+
             return newBoardState;
         }
 

@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Chess.Api.Constants;
 
 namespace Chess.Api.Controllers
 {
@@ -205,13 +206,16 @@ namespace Chess.Api.Controllers
         private Game CreateNewGame(ChallengeDatabaseModel challenge, User challenger, User recipient)
         {
             var game = new Game();
+            var startingFen = GameConstants.STANDARD_START_POSITION_FEN;
             var isChallengerWhite = GetChallengerColor(challenge);
 
             game.WhitePlayer = isChallengerWhite ? challenger : recipient;
             game.BlackPlayer = isChallengerWhite ? recipient : challenger;
+            game.Fen = startingFen;
 
             var newGameId = _stringIdGenerator.GenerateId();
             _gameRepository.CreateGame(newGameId, game.WhitePlayer.Id, game.BlackPlayer.Id);
+            _gameRepository.AddPositionToGame(newGameId, game.Fen);
 
             game.Id = newGameId;
 

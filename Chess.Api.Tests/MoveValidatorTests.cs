@@ -8,11 +8,13 @@ namespace Chess.Api.Tests
     public class MoveValidatorTests
     {
         private IMoveValidator _moveValidator;
+        private FenParser _fenParser;
 
         [SetUp]
         public void Setup()
         {
             _moveValidator = new MoveValidator();
+            _fenParser = new FenParser();
         }
 
         [TestCase("8/8/8/8/8/8/P7/8 w KQkq - 0 1", "a2a3", "white pawn should be able to move 1 space")]
@@ -276,11 +278,70 @@ namespace Chess.Api.Tests
         [TestCase("8/8/8/2K1n3/8/8/8/8 w - - 0 1", "c5c4", "the king cannot move to this square because the knight controls it")]
         [TestCase("8/8/4K3/4n3/8/8/8/8 w - - 0 1", "e6d7", "the king cannot move to this square because the knight controls it")]
         [TestCase("8/8/4K3/4n3/8/8/8/8 w - - 0 1", "e6f7", "the king cannot move to this square because the knight controls it")]
-        public void MoveValidator_ShouldRetrunInvalid_WhenMoveWouldPlaceOwnKingInCheck(string fen, string move, string because)
+        public void MoveValidator_ShouldReturnInvalid_WhenMoveWouldPlaceOwnKingInCheck(string fen, string move, string because)
         {
             var result = _moveValidator.ValidateMove(fen, move);
 
             result.IsValid.Should().BeFalse(because);
+        }
+
+        [TestCase("8/8/8/3P4/8/8/8/8 w - - 0 1", "d5d6")]
+        [TestCase("8/8/2q5/3P4/8/8/8/8 w - - 0 1", "d5c6")]
+        [TestCase("8/2q5/8/3N4/8/8/8/8 w - - 0 1", "d5c7")]
+        [TestCase("8/3q4/8/3R4/8/8/8/8 w - - 0 1", "d5d7")]
+        [TestCase("8/3q4/8/3Q4/8/8/8/8 w - - 0 1", "d5d7")]
+        [TestCase("8/3q4/8/5B2/8/8/8/8 w - - 0 1", "f5d7")]
+        [TestCase("8/3q4/3K4/8/8/8/8/8 w - - 0 1", "d6d7")]
+        public void ValidateMove_ShouldResetHalfmoveClock_WhenPawnOrCaptureMove(string fen, string move)
+        {
+            var result = _moveValidator.ValidateMove(fen, move);
+
+            result.ShouldResetHalfmoveClock.Should().BeTrue();
+        }
+
+        [TestCase("8/8/8/3N4/8/8/8/8 w - - 0 1", "d5c7")]
+        [TestCase("8/8/8/3R4/8/8/8/8 w - - 0 1", "d5d7")]
+        [TestCase("8/8/8/3Q4/8/8/8/8 w - - 0 1", "d5d7")]
+        [TestCase("8/8/8/5B2/8/8/8/8 w - - 0 1", "f5d7")]
+        [TestCase("8/8/3K4/8/8/8/8/8 w - - 0 1", "d6d7")]
+        public void ValidateMove_ShouldNotResetHalfmoveClock_WhenNoPawnOrCaptureMove(string fen, string move)
+        {
+            var result = _moveValidator.ValidateMove(fen, move);
+
+            result.ShouldResetHalfmoveClock.Should().BeFalse();
+        }
+
+        [TestCase("8/8/8/8/8/8/r2q4/3K4 w - - 0 1")]
+        [TestCase("8/8/8/8/2B5/8/r2q4/3K4 w - - 0 1")]
+        public void IsCheckmate_ShouldReturnTrue_WhenKingIsInCheckWithNoLegalMoves(string fen)
+        {
+            var boardState = _fenParser.ParseFen(fen);
+
+            var result = _moveValidator.IsCheckmate(boardState);
+
+            result.Should().BeTrue();
+        }
+
+        [TestCase("8/8/8/8/5B2/8/r2q4/3K4 w - - 0 1")]
+        [TestCase("8/8/8/8/8/8/3q4/3K4 w - - 0 1")]
+        public void IsCheckmate_ShouldReturnFalse_WhenKingIsInCheckButCanCaptureAttacker(string fen)
+        {
+            var boardState = _fenParser.ParseFen(fen);
+
+            var result = _moveValidator.IsCheckmate(boardState);
+
+            result.Should().BeFalse();
+        }
+
+        [TestCase("4r3/8/8/8/8/2q5/r7/3K4 w - - 0 1")]
+        [TestCase("4r3/8/8/8/8/8/r2p4/3K4 w - - 0 1")]
+        public void IsStalemate_ShouldReturnTrue_WhenKingHasNoMovesAndNotInCheck(string fen)
+        {
+            var boardState = _fenParser.ParseFen(fen);
+
+            var result = _moveValidator.IsStalemate(boardState);
+
+            result.Should().BeTrue();
         }
     }
 }

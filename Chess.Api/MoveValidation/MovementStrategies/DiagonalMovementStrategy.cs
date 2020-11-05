@@ -24,7 +24,8 @@ namespace Chess.Api.MoveValidation.MovementStrategies
 
             return new MoveValidationResult
             {
-                IsValid = !IsBlocked(move, boardState.PiecePositions)
+                IsValid = !IsBlocked(move, boardState.PiecePositions),
+                ShouldResetHalfmoveClock = IsSquareOccupied(move.EndPosition, boardState.PiecePositions)
             };
         }
 
