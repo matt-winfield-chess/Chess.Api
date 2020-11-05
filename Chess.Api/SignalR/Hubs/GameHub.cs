@@ -7,6 +7,7 @@ using Chess.Api.Models.Database;
 using Chess.Api.MoveValidation;
 using Chess.Api.MoveValidation.Interfaces;
 using Chess.Api.SignalR.Messages;
+using Microsoft.Extensions.Logging;
 
 namespace Chess.Api.SignalR.Hubs
 {
@@ -19,15 +20,17 @@ namespace Chess.Api.SignalR.Hubs
         private readonly IMoveHandler _moveHandler;
         private readonly CoordinateNotationParser _coordinateNotationParser;
         private readonly FenParser _fenParser;
+        private readonly ILogger<GameHub> _logger;
 
         public GameHub(IGameRepository gameRepository, IMoveValidator moveValidator, IMoveHandler moveHandler,
-            CoordinateNotationParser coordinateNotationParser, FenParser fenParser)
+            CoordinateNotationParser coordinateNotationParser, FenParser fenParser, ILogger<GameHub> logger)
         {
             _gameRepository = gameRepository;
             _moveValidator = moveValidator;
             _moveHandler = moveHandler;
             _coordinateNotationParser = coordinateNotationParser;
             _fenParser = fenParser;
+            _logger = logger;
         }
 
         public async Task JoinGame(string gameId)
@@ -42,6 +45,9 @@ namespace Chess.Api.SignalR.Hubs
 
         public async Task Move(string moveNotation, string gameId)
         {
+            _logger.LogInformation("Move {Move} sent in game {GameId}", moveNotation, gameId);
+            await Clients.Caller.SendAsync(GameHubOutgoingMessages.MOVE_RECEIVED);
+
             var game = _gameRepository.GetGameById(gameId);
             if (game == null)
             {
@@ -50,6 +56,7 @@ namespace Chess.Api.SignalR.Hubs
 
             if (!game.Active)
             {
+                _logger.LogInformation("Move {Move} was illegal in game {GameId} because game is inactive", moveNotation, gameId);
                 await Clients.Caller.SendAsync(GameHubOutgoingMessages.ILLEGAL_MOVE, game.Fen);
                 return;
             }
@@ -57,6 +64,7 @@ namespace Chess.Api.SignalR.Hubs
             var moveValidationResult = _moveValidator.ValidateMove(game.Fen, moveNotation);
             if (!moveValidationResult.IsValid)
             {
+                _logger.LogInformation("Move {Move} was illegal in game {GameId}", moveNotation, gameId);
                 await Clients.Caller.SendAsync(GameHubOutgoingMessages.ILLEGAL_MOVE, game.Fen);
                 return;
             }
