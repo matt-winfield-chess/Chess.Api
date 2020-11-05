@@ -27,7 +27,8 @@ namespace Chess.Api.MoveValidation.MovementStrategies
                 return new MoveValidationResult
                 {
                     IsValid = true,
-                    EnPassantCapture = GetEnPassantCapturedCoordinate(move)
+                    EnPassantCapture = GetEnPassantCapturedCoordinate(move),
+                    ShouldResetHalfmoveClock = true
                 };
             }
 
@@ -36,7 +37,8 @@ namespace Chess.Api.MoveValidation.MovementStrategies
                 return new MoveValidationResult
                 {
                     IsValid = true,
-                    IsPromotion = IsPromotion(move)
+                    IsPromotion = IsPromotion(move),
+                    ShouldResetHalfmoveClock = true
                 };
             }
 
@@ -44,7 +46,8 @@ namespace Chess.Api.MoveValidation.MovementStrategies
             {
                 IsValid = IsValidMoveForward(move, boardState.PiecePositions),
                 NewEnPassantTarget = GetNewEnPassantTarget(move),
-                IsPromotion = IsPromotion(move)
+                IsPromotion = IsPromotion(move),
+                ShouldResetHalfmoveClock = true
             };
         }
 

@@ -19,7 +19,8 @@ namespace Chess.Api.MoveValidation.MovementStrategies
 
             return new MoveValidationResult
             {
-                IsValid = IsSquareReachable(move)
+                IsValid = IsSquareReachable(move),
+                ShouldResetHalfmoveClock = IsSquareOccupied(move.EndPosition, boardState.PiecePositions)
             };
         }
 

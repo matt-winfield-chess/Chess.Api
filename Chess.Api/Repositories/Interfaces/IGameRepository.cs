@@ -1,6 +1,7 @@
 ﻿using Chess.Api.Models;
 using System.Collections.Generic;
 using Chess.Api.Models.Database;
+using Chess.Api.MoveValidation;
 
 namespace Chess.Api.Repositories.Interfaces
 {
@@ -12,5 +13,9 @@ namespace Chess.Api.Repositories.Interfaces
         void AddMoveToGame(string gameId, string move, string newFen);
         IEnumerable<MoveDatabaseModel> GetMovesByGameId(string gameId);
         IEnumerable<GameDatabaseModel> GetUserActiveGames(int userId);
+        void SetGameResult(string gameId, string winnerColor, int? winnerId, string termination);
+        IEnumerable<PositionDatabaseModel> GetPositionsSinceIrreversibleMove(string gameId);
+        void AddPositionToGame(string gameId, string fen);
+        void ClearPositionsFromIrreversibleMove(string gameId);
     }
 }

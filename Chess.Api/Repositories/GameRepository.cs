@@ -1,4 +1,5 @@
-﻿using Chess.Api.Models.Database;
+﻿using Chess.Api.Constants;
+using Chess.Api.Models.Database;
 using Chess.Api.Repositories.Interfaces;
 using Dapper;
 using Microsoft.Extensions.Configuration;
@@ -6,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using System.Collections.Generic;
 using System.Data;
-using Chess.Api.Constants;
 
 namespace Chess.Api.Repositories
 {
@@ -79,6 +79,51 @@ namespace Chess.Api.Repositories
 
             return connection.Query<GameDatabaseModel>("GetActiveGames", parameters,
                 commandType: CommandType.StoredProcedure);
+        }
+
+        public void SetGameResult(string gameId, string winnerColor, int? winnerId, string termination)
+        {
+            using var connection = new MySqlConnection(_connectionString);
+
+            var parameters = new DynamicParameters();
+            parameters.Add("gameIdInput", gameId);
+            parameters.Add("winnerColorInput", winnerColor);
+            parameters.Add("winnerIdInput", winnerId);
+            parameters.Add("terminationInput", termination);
+
+            connection.Execute("SetGameResult", parameters, commandType: CommandType.StoredProcedure);
+        }
+
+        public IEnumerable<PositionDatabaseModel> GetPositionsSinceIrreversibleMove(string gameId)
+        {
+            using var connection = new MySqlConnection(_connectionString);
+
+            var parameters = new DynamicParameters();
+            parameters.Add("gameIdInput", gameId);
+
+            return connection.Query<PositionDatabaseModel>("GetPositionsFromIrreversibleMove", parameters,
+                commandType: CommandType.StoredProcedure);
+        }
+
+        public void AddPositionToGame(string gameId, string fen)
+        {
+            using var connection = new MySqlConnection(_connectionString);
+
+            var parameters = new DynamicParameters();
+            parameters.Add("gameIdInput", gameId);
+            parameters.Add("fenInput", fen);
+
+            connection.Execute("AddPositionToGame", parameters, commandType: CommandType.StoredProcedure);
+        }
+
+        public void ClearPositionsFromIrreversibleMove(string gameId)
+        {
+            using var connection = new MySqlConnection(_connectionString);
+
+            var parameters = new DynamicParameters();
+            parameters.Add("gameIdInput", gameId);
+
+            connection.Execute("ClearGamePositionsFromIrreversibleMove", parameters, commandType: CommandType.StoredProcedure);
         }
     }
 }

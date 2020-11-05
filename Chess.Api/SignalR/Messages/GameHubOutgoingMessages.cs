@@ -4,5 +4,7 @@
     {
         public const string MOVE_PLAYED = "MovePlayed";
         public const string ILLEGAL_MOVE = "IllegalMove";
+        public const string CHECKMATE = "Checkmate";
+        public const string DRAW = "Draw";
     }
 }

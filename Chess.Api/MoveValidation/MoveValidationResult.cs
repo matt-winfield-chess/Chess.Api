@@ -7,5 +7,6 @@
         public Coordinate NewEnPassantTarget { get; set; }
         public Coordinate EnPassantCapture { get; set; }
         public bool IsPromotion { get; set; }
+        public bool ShouldResetHalfmoveClock { get; set; }
     }
 }

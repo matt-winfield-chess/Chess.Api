@@ -1,4 +1,6 @@
-﻿namespace Chess.Api.Models.Database
+﻿using Chess.Api.MoveValidation;
+
+namespace Chess.Api.Models.Database
 {
     public class GameDatabaseModel
     {
@@ -7,5 +9,10 @@
         public int BlackPlayerId { get; set; }
         public bool Active { get; set; }
         public string Fen { get; set; }
+
+        public int GetPlayerId(Color color)
+        {
+            return color == Color.White ? WhitePlayerId : BlackPlayerId;
+        }
     }
 }

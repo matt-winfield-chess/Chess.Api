@@ -11,5 +11,11 @@
 
             return targetSquarePiece == null || movingPiece.Color != targetSquarePiece.Color;
         }
+
+        protected bool IsSquareOccupied(Coordinate position, Piece[,] piecePositions)
+        {
+            var piece = piecePositions[position.X, position.Y];
+            return piece != null;
+        }
     }
 }
