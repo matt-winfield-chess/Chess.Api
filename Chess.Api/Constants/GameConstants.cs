@@ -7,6 +7,6 @@
         public const string STALEMATE_TERMINATION = "stalemate";
         public const string FIFTY_MOVE_RULE_TERMINATION = "50-move-rule";
         public const string THREEFOLD_REPETITION_TERMINATION = "threefold-repetition";
-        public const string RESIGNATION = "resignation";
+        public const string RESIGNATION_TERMINATION = "resignation";
     }
 }
