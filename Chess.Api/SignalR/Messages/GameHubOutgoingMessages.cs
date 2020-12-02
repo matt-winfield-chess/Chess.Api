@@ -7,5 +7,6 @@
         public const string CHECKMATE = "Checkmate";
         public const string DRAW = "Draw";
         public const string MOVE_RECEIVED = "MoveReceived";
+        public const string RESIGNATION = "Resignation";
     }
 }

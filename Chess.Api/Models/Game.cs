@@ -10,5 +10,8 @@ namespace Chess.Api.Models
         public IEnumerable<MoveModel> Moves { get; set; }
         public bool Active { get; set; }
         public string Fen { get; set; }
+        public string Winner { get; set; }
+        public int? WinnerId { get; set; }
+        public string Termination { get; set; }
     }
 }
