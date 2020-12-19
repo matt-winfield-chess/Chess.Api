@@ -13,5 +13,6 @@ namespace Chess.Api.Models
         public string Winner { get; set; }
         public int? WinnerId { get; set; }
         public string Termination { get; set; }
+        public string DrawOffer { get; set; }
     }
 }

@@ -12,6 +12,7 @@ namespace Chess.Api.Models.Database
         public string Winner { get; set; }
         public int? WinnerId { get; set; }
         public string Termination { get; set; }
+        public string DrawOffer { get; set; }
 
         public int GetPlayerId(Color color)
         {

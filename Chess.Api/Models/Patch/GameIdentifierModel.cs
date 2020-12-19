@@ -1,6 +1,6 @@
 ﻿namespace Chess.Api.Models.Patch
 {
-    public class PatchResignationModel
+    public class GameIdentifierModel
     {
         public string GameId { get; set; }
     }

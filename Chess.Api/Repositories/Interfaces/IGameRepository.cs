@@ -17,5 +17,7 @@ namespace Chess.Api.Repositories.Interfaces
         IEnumerable<PositionDatabaseModel> GetPositionsSinceIrreversibleMove(string gameId);
         void AddPositionToGame(string gameId, string fen);
         void ClearPositionsFromIrreversibleMove(string gameId);
+        void CreateDrawOffer(string gameId, string color);
+        void RemoveDrawOffer(string gameId);
     }
 }

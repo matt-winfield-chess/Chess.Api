@@ -125,5 +125,26 @@ namespace Chess.Api.Repositories
 
             connection.Execute("ClearGamePositionsFromIrreversibleMove", parameters, commandType: CommandType.StoredProcedure);
         }
+
+        public void CreateDrawOffer(string gameId, string color)
+        {
+            using var connection = new MySqlConnection(_connectionString);
+
+            var parameters = new DynamicParameters();
+            parameters.Add("gameIdInput", gameId);
+            parameters.Add("drawOfferColor", color);
+
+            connection.Execute("OfferDraw", parameters, commandType: CommandType.StoredProcedure);
+        }
+
+        public void RemoveDrawOffer(string gameId)
+        {
+            using var connection = new MySqlConnection(_connectionString);
+
+            var parameters = new DynamicParameters();
+            parameters.Add("gameIdInput", gameId);
+
+            connection.Execute("RemoveDrawOffer", parameters, commandType: CommandType.StoredProcedure);
+        }
     }
 }

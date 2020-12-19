@@ -77,37 +77,15 @@ namespace Chess.Api.Controllers
         }
 
         [HttpPatch("resign")]
-        public async Task<ActionResult<ApiMethodResponse<bool>>> Resign(PatchResignationModel resignationModel)
+        public async Task<ActionResult<ApiMethodResponse<bool>>> Resign(GameIdentifierModel resignationModel)
         {
             var game = _gameRepository.GetGameById(resignationModel.GameId);
             var userId = _claimsProvider.GetId(HttpContext);
 
-            if (game == null)
+            var error = GetErrorActionResult(resignationModel.GameId, game, userId);
+            if (error != null)
             {
-                return NotFound(new ApiMethodResponse<bool>
-                {
-                    Data = false,
-                    Errors = new[] {$"Game with id {resignationModel.GameId} not found"}
-                });
-            }
-
-            if (!game.Active)
-            {
-                return BadRequest(new ApiMethodResponse<bool>
-                {
-                    Data = false,
-                    Errors = new[] {$"Game {game.Id} is already complete"}
-                });
-            }
-
-            if (userId == null || (userId != game.WhitePlayerId && userId != game.BlackPlayerId))
-            {
-                return Unauthorized(new ApiMethodResponse<bool>
-                {
-                    Data = false,
-                    Errors = new[] {$"You are not a participant in game {game.Id}"}
-
-                });
+                return error;
             }
 
             bool isWhitePlayer = userId == game.WhitePlayerId;
@@ -130,6 +108,160 @@ namespace Chess.Api.Controllers
             });
         }
 
+        [HttpPatch("offerDraw")]
+        public async Task<ActionResult<ApiMethodResponse<bool>>> OfferDraw(GameIdentifierModel offerDrawModel)
+        {
+            var game = _gameRepository.GetGameById(offerDrawModel.GameId);
+            var userId = _claimsProvider.GetId(HttpContext);
+
+            var error = GetErrorActionResult(offerDrawModel.GameId, game, userId);
+            if (error != null)
+            {
+                return error;
+            }
+
+            string color = userId == game.WhitePlayerId
+                ? GameConstants.WHITE
+                : GameConstants.BLACK;
+
+            _gameRepository.CreateDrawOffer(game.Id, color);
+
+            await _gameHubContext.Clients.Group($"{GameHub.GAME_GROUP_PREFIX}{game.Id}").SendAsync(GameHubOutgoingMessages.DRAW_OFFER, color);
+
+            return Ok(new ApiMethodResponse<bool>
+            {
+                Data = true
+            });
+        }
+
+        [HttpPatch("acceptDraw")]
+        public async Task<ActionResult<ApiMethodResponse<bool>>> AcceptDraw(GameIdentifierModel acceptDrawModel)
+        {
+            var game = _gameRepository.GetGameById(acceptDrawModel.GameId);
+            var userId = _claimsProvider.GetId(HttpContext);
+
+            var error = GetErrorActionResult(acceptDrawModel.GameId, game, userId);
+            if (error != null)
+            {
+                return error;
+            }
+
+            if (game.DrawOffer == null)
+            {
+                return Unauthorized(new ApiMethodResponse<bool>
+                {
+                    Data = false,
+                    Errors = new[] {"There is no draw offer to accept!"}
+                });
+            }
+
+            var drawOfferRecpientColor = game.DrawOffer == GameConstants.WHITE
+                ? Color.Black
+                : Color.White;
+
+            var drawOfferRecipientId = game.GetPlayerId(drawOfferRecpientColor);
+            if (drawOfferRecipientId != userId)
+            {
+                return Unauthorized(new ApiMethodResponse<bool>
+                {
+                    Data = false,
+                    Errors = new[] {"You are not the recpient of the draw offer!"}
+                });
+            }
+
+            _gameRepository.RemoveDrawOffer(game.Id);
+            _gameRepository.SetGameResult(game.Id, null, null, GameConstants.AGREEMENT_TERMINATION);
+
+            var gameResult = new GameResult
+            {
+                WinnerColor = null,
+                Termination = GameConstants.AGREEMENT_TERMINATION
+            };
+            await _gameHubContext.Clients.Group($"{GameHub.GAME_GROUP_PREFIX}{game.Id}").SendAsync(GameHubOutgoingMessages.DRAW_OFFER_ACCEPTED, gameResult);
+
+            return Ok(new ApiMethodResponse<bool>
+            {
+                Data = true
+            });
+        }
+
+        [HttpPatch("declineDraw")]
+        public async Task<ActionResult<ApiMethodResponse<bool>>> DeclineDraw(GameIdentifierModel acceptDrawModel)
+        {
+            var game = _gameRepository.GetGameById(acceptDrawModel.GameId);
+            var userId = _claimsProvider.GetId(HttpContext);
+
+            var error = GetErrorActionResult(acceptDrawModel.GameId, game, userId);
+            if (error != null)
+            {
+                return error;
+            }
+
+            if (game.DrawOffer == null)
+            {
+                return Unauthorized(new ApiMethodResponse<bool>
+                {
+                    Data = false,
+                    Errors = new[] { "There is no draw offer to accept!" }
+                });
+            }
+
+            var drawOfferRecpientColor = game.DrawOffer == GameConstants.WHITE
+                ? Color.Black
+                : Color.White;
+
+            var drawOfferRecipientId = game.GetPlayerId(drawOfferRecpientColor);
+            if (drawOfferRecipientId != userId)
+            {
+                return Unauthorized(new ApiMethodResponse<bool>
+                {
+                    Data = false,
+                    Errors = new[] { "You are not the recpient of the draw offer!" }
+                });
+            }
+
+            _gameRepository.RemoveDrawOffer(game.Id);
+            await _gameHubContext.Clients.Group($"{GameHub.GAME_GROUP_PREFIX}{game.Id}").SendAsync(GameHubOutgoingMessages.DRAW_OFFER_DECLINED);
+
+            return Ok(new ApiMethodResponse<bool>
+            {
+                Data = true
+            });
+        }
+
+        private ActionResult<ApiMethodResponse<bool>> GetErrorActionResult(string gameId, GameDatabaseModel game, int? userId)
+        {
+            if (game == null)
+            {
+                return NotFound(new ApiMethodResponse<bool>
+                {
+                    Data = false,
+                    Errors = new[] { $"Game with id {gameId} not found" }
+                });
+            }
+
+            if (!game.Active)
+            {
+                return BadRequest(new ApiMethodResponse<bool>
+                {
+                    Data = false,
+                    Errors = new[] { $"Game {game.Id} is already complete" }
+                });
+            }
+
+            if (userId == null || (userId != game.WhitePlayerId && userId != game.BlackPlayerId))
+            {
+                return Unauthorized(new ApiMethodResponse<bool>
+                {
+                    Data = false,
+                    Errors = new[] { $"You are not a participant in game {game.Id}" }
+
+                });
+            }
+
+            return null;
+        }
+
         private Game MapGameDatabaseModelToGame(GameDatabaseModel game)
         {
             return new Game
@@ -146,7 +278,8 @@ namespace Chess.Api.Controllers
                 Fen = game.Fen,
                 Winner = game.Winner,
                 WinnerId = game.WinnerId,
-                Termination = game.Termination
+                Termination = game.Termination,
+                DrawOffer = game.DrawOffer
             };
         }
     }
