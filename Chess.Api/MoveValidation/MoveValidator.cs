@@ -12,6 +12,15 @@ namespace Chess.Api.MoveValidation
         private readonly MovementStrategyProvider _movementStrategyProvider = new MovementStrategyProvider();
         private readonly MoveHandler _moveHandler = new MoveHandler();
 
+        public static bool IsSquareAttacked(Coordinate position, Color color, BoardState boardState)
+        {
+            return IsSquareAttackedInStraightLine(position, color, boardState)
+                   || IsSquareAttackedDiagonally(position, color, boardState)
+                   || IsSquareAttackedByPawn(position, color, boardState)
+                   || IsSquareAttackedByKnight(position, color, boardState)
+                   || IsSquareAttackedByKing(position, color, boardState);
+        }
+
         public MoveValidationResult ValidateMove(string currentFen, string move)
         {
             var boardState = _fenParser.ParseFen(currentFen);
@@ -163,11 +172,11 @@ namespace Chess.Api.MoveValidation
                 return false;
             }
 
-            return IsKingAttackedInStraightLine(kingPosition, kingColor, boardState)
-                   || IsKingAttackedDiagonally(kingPosition, kingColor, boardState)
-                   || IsKingAttackedByPawn(kingPosition, kingColor, boardState)
-                   || IsKingAttackedByKnight(kingPosition, kingColor, boardState)
-                   || IsKingAttackedByKing(kingPosition, kingColor, boardState);
+            return IsSquareAttackedInStraightLine(kingPosition, kingColor, boardState)
+                   || IsSquareAttackedDiagonally(kingPosition, kingColor, boardState)
+                   || IsSquareAttackedByPawn(kingPosition, kingColor, boardState)
+                   || IsSquareAttackedByKnight(kingPosition, kingColor, boardState)
+                   || IsSquareAttackedByKing(kingPosition, kingColor, boardState);
         }
 
         private Coordinate FindKing(Color kingColor, BoardState boardState)
@@ -191,48 +200,48 @@ namespace Chess.Api.MoveValidation
             return null;
         }
 
-        private bool IsKingAttackedInStraightLine(Coordinate kingPosition, Color kingColor, BoardState boardState)
+        private static bool IsSquareAttackedInStraightLine(Coordinate position, Color color, BoardState boardState)
         {
             var validPieces = new[] {PieceType.Queen, PieceType.Rook};
 
 
-            return IsKingAttackedByLineOfSightPiece(kingPosition, kingColor, boardState, 1, 0, validPieces)
-                   || IsKingAttackedByLineOfSightPiece(kingPosition, kingColor, boardState, -1, 0, validPieces)
-                   || IsKingAttackedByLineOfSightPiece(kingPosition, kingColor, boardState, 0, 1, validPieces)
-                   || IsKingAttackedByLineOfSightPiece(kingPosition, kingColor, boardState, 0, -1, validPieces);
+            return IsSquareAttackedByLineOfSightPiece(position, color, boardState, 1, 0, validPieces)
+                   || IsSquareAttackedByLineOfSightPiece(position, color, boardState, -1, 0, validPieces)
+                   || IsSquareAttackedByLineOfSightPiece(position, color, boardState, 0, 1, validPieces)
+                   || IsSquareAttackedByLineOfSightPiece(position, color, boardState, 0, -1, validPieces);
         }
 
-        private bool IsKingAttackedDiagonally(Coordinate kingPosition, Color kingColor, BoardState boardState)
+        private static bool IsSquareAttackedDiagonally(Coordinate position, Color color, BoardState boardState)
         {
             var validPieces = new[] {PieceType.Bishop, PieceType.Queen};
 
-            return IsKingAttackedByLineOfSightPiece(kingPosition, kingColor, boardState, 1, 1, validPieces)
-                   || IsKingAttackedByLineOfSightPiece(kingPosition, kingColor, boardState, 1, -1, validPieces)
-                   || IsKingAttackedByLineOfSightPiece(kingPosition, kingColor, boardState, -1, 1, validPieces)
-                   || IsKingAttackedByLineOfSightPiece(kingPosition, kingColor, boardState, -1, -1, validPieces);
+            return IsSquareAttackedByLineOfSightPiece(position, color, boardState, 1, 1, validPieces)
+                   || IsSquareAttackedByLineOfSightPiece(position, color, boardState, 1, -1, validPieces)
+                   || IsSquareAttackedByLineOfSightPiece(position, color, boardState, -1, 1, validPieces)
+                   || IsSquareAttackedByLineOfSightPiece(position, color, boardState, -1, -1, validPieces);
         }
 
-        private bool IsKingAttackedByPawn(Coordinate kingPosition, Color kingColor, BoardState boardState)
+        private static bool IsSquareAttackedByPawn(Coordinate position, Color kingColor, BoardState boardState)
         {
             var opponentMovementDirection = kingColor == Color.White ? -1 : 1;
 
-            if (kingPosition.Y - opponentMovementDirection < 0)
+            if (position.Y - opponentMovementDirection < 0)
             {
                 return false;
             }
 
-            if (kingPosition.X - 1 >= 0)
+            if (position.X - 1 >= 0)
             {
-                var candidateAttacker1 = boardState.PiecePositions[kingPosition.X - 1, kingPosition.Y - opponentMovementDirection];
+                var candidateAttacker1 = boardState.PiecePositions[position.X - 1, position.Y - opponentMovementDirection];
                 if (candidateAttacker1 != null && candidateAttacker1.Type == PieceType.Pawn && candidateAttacker1.Color != kingColor)
                 {
                     return true;
                 }
             }
 
-            if (kingPosition.X + 1 < boardState.PiecePositions.GetLength(0))
+            if (position.X + 1 < boardState.PiecePositions.GetLength(0))
             {
-                var candidateAttacker2 = boardState.PiecePositions[kingPosition.X + 1, kingPosition.Y - opponentMovementDirection];
+                var candidateAttacker2 = boardState.PiecePositions[position.X + 1, position.Y - opponentMovementDirection];
                 if (candidateAttacker2 != null && candidateAttacker2.Type == PieceType.Pawn && candidateAttacker2.Color != kingColor)
                 {
                     return true;
@@ -242,23 +251,23 @@ namespace Chess.Api.MoveValidation
             return false;
         }
 
-        private bool IsKingAttackedByKnight(Coordinate kingPosition, Color kingColor, BoardState boardState)
+        private static bool IsSquareAttackedByKnight(Coordinate position, Color color, BoardState boardState)
         {
-            return DoesSquareHaveOpponentKnight(kingPosition.X + 2, kingPosition.Y + 1, kingColor, boardState)
-                   || DoesSquareHaveOpponentKnight(kingPosition.X + 2, kingPosition.Y - 1, kingColor, boardState)
-                   || DoesSquareHaveOpponentKnight(kingPosition.X - 2, kingPosition.Y + 1, kingColor, boardState)
-                   || DoesSquareHaveOpponentKnight(kingPosition.X - 2, kingPosition.Y - 1, kingColor, boardState)
-                   || DoesSquareHaveOpponentKnight(kingPosition.X + 1, kingPosition.Y + 2, kingColor, boardState)
-                   || DoesSquareHaveOpponentKnight(kingPosition.X + 1, kingPosition.Y - 2, kingColor, boardState)
-                   || DoesSquareHaveOpponentKnight(kingPosition.X - 1, kingPosition.Y + 2, kingColor, boardState)
-                   || DoesSquareHaveOpponentKnight(kingPosition.X - 1, kingPosition.Y - 2, kingColor, boardState);
+            return DoesSquareHaveOpponentKnight(position.X + 2, position.Y + 1, color, boardState)
+                   || DoesSquareHaveOpponentKnight(position.X + 2, position.Y - 1, color, boardState)
+                   || DoesSquareHaveOpponentKnight(position.X - 2, position.Y + 1, color, boardState)
+                   || DoesSquareHaveOpponentKnight(position.X - 2, position.Y - 1, color, boardState)
+                   || DoesSquareHaveOpponentKnight(position.X + 1, position.Y + 2, color, boardState)
+                   || DoesSquareHaveOpponentKnight(position.X + 1, position.Y - 2, color, boardState)
+                   || DoesSquareHaveOpponentKnight(position.X - 1, position.Y + 2, color, boardState)
+                   || DoesSquareHaveOpponentKnight(position.X - 1, position.Y - 2, color, boardState);
         }
 
-        private bool IsKingAttackedByKing(Coordinate kingPosition, Color kingColor, BoardState boardState)
+        private static bool IsSquareAttackedByKing(Coordinate position, Color color, BoardState boardState)
         {
-            for (int x = kingPosition.X - 1; x <= kingPosition.X + 1; x++)
+            for (int x = position.X - 1; x <= position.X + 1; x++)
             {
-                for (int y = kingPosition.Y - 1; y <= kingPosition.Y + 1; y++)
+                for (int y = position.Y - 1; y <= position.Y + 1; y++)
                 {
                     if (x < 0 || x >= boardState.PiecePositions.GetLength(0)
                               || y < 0 || y >= boardState.PiecePositions.GetLength(1))
@@ -266,7 +275,7 @@ namespace Chess.Api.MoveValidation
                         continue;
                     }
 
-                    if (x == kingPosition.X && y == kingPosition.Y)
+                    if (x == position.X && y == position.Y)
                     {
                         continue;
                     }
@@ -274,7 +283,7 @@ namespace Chess.Api.MoveValidation
                     var piece = boardState.PiecePositions[x, y];
                     if (piece != null)
                     {
-                        if (piece.Type == PieceType.King && piece.Color != kingColor)
+                        if (piece.Type == PieceType.King && piece.Color != color)
                         {
                             return true;
                         }
@@ -284,7 +293,7 @@ namespace Chess.Api.MoveValidation
             return false;
         }
 
-        private bool DoesSquareHaveOpponentKnight(int x, int y, Color kingColor, BoardState boardState) {
+        private static bool DoesSquareHaveOpponentKnight(int x, int y, Color kingColor, BoardState boardState) {
             if (x < 0 || x >= boardState.PiecePositions.GetLength(0) || y < 0 ||
                 y >= boardState.PiecePositions.GetLength(1))
             {
@@ -300,17 +309,17 @@ namespace Chess.Api.MoveValidation
             return piece.Type == PieceType.Knight && piece.Color != kingColor;
         }
 
-        private bool IsKingAttackedByLineOfSightPiece(Coordinate kingPosition, Color kingColor, BoardState boardState, 
+        private static bool IsSquareAttackedByLineOfSightPiece(Coordinate position, Color color, BoardState boardState, 
             int xIncrement, int yIncrement, IEnumerable<PieceType> validPieces) {
 
-            var x = kingPosition.X + xIncrement;
-            var y = kingPosition.Y + yIncrement;
+            var x = position.X + xIncrement;
+            var y = position.Y + yIncrement;
 
             while (x >= 0 && x < boardState.PiecePositions.GetLength(0) && y >= 0 && y < boardState.PiecePositions.GetLength(1))
             {
                 var piece = boardState.PiecePositions[x, y];
                 if (piece != null) {
-                    if (piece.Color != kingColor) {
+                    if (piece.Color != color) {
                         if (validPieces.Any(type => piece.Type == type)) {
                             return true;
                         }

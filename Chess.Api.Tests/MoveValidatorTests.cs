@@ -150,6 +150,44 @@ namespace Chess.Api.Tests
             result.CastleRookMove.EndPosition.Y.Should().Be(rookEndY);
         }
 
+        [TestCase("r3k2r/8/1b6/8/8/8/8/R3K2R w KQkq - 0 1", "e1g1")]
+        [TestCase("r3k2r/8/b7/8/8/8/8/R3K2R w KQkq - 0 1", "e1g1")]
+        [TestCase("r3k2r/8/8/8/5b2/8/8/R3K2R w KQkq - 0 1", "e1c1")]
+        [TestCase("r3k2r/8/8/8/6b1/8/8/R3K2R w KQkq - 0 1", "e1c1")]
+        [TestCase("r3k2r/8/8/3B4/8/8/8/R3K2R b KQkq - 0 1", "e8g8")]
+        [TestCase("r3k2r/8/8/2B5/8/8/8/R3K2R b KQkq - 0 1", "e8g8")]
+        [TestCase("r3k2r/8/8/6B1/8/8/8/R3K2R b KQkq - 0 1", "e8c8")]
+        [TestCase("r3k2r/8/8/5B2/8/8/8/R3K2R b KQkq - 0 1", "e8c8")]
+        public void ValidateMove_ShouldNotAllowCastle_WhenCastlingThroughCheck(string fen, string move)
+        {
+            var result = _moveValidator.ValidateMove(fen, move);
+
+            result.IsValid.Should().BeFalse();
+        }
+
+        [TestCase("r3k2r/8/8/8/1b6/8/8/R3K2R w KQkq - 0 1", "e1g1")]
+        [TestCase("r3k2r/8/8/8/1b6/8/8/R3K2R w KQkq - 0 1", "e1c1")]
+        [TestCase("r3k2r/8/8/1B6/8/8/8/R3K2R w KQkq - 0 1", "e8g8")]
+        [TestCase("r3k2r/8/8/1B6/8/8/8/R3K2R w KQkq - 0 1", "e8c8")]
+
+        public void ValidateMove_ShouldNotAllowCastle_WhenKingIsInCheck(string fen, string move)
+        {
+            var result = _moveValidator.ValidateMove(fen, move);
+
+            result.IsValid.Should().BeFalse();
+        }
+
+        [TestCase("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKB1R w KQkq - 0 1", "e1g1")]
+        [TestCase("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RN2K1NR w KQkq - 0 1", "e1c1")]
+        [TestCase("rn2k1nr/pppppppp/8/8/8/8/PPPPPPPP/RN2K1NR b KQkq - 0 1", "e8g8")]
+        [TestCase("rn2k1nr/pppppppp/8/8/8/8/PPPPPPPP/RN2K1NR b KQkq - 0 1", "e8c8")]
+        public void ValidateMove_ShouldNotAllowCastle_WhenBlockedByOtherPiece(string fen, string move)
+        {
+            var result = _moveValidator.ValidateMove(fen, move);
+
+            result.IsValid.Should().BeFalse();
+        }
+
         [TestCase("8/8/8/8/8/8/6p1/8 b - - 0 1", "g2g1")]
         [TestCase("8/6P1/8/8/8/8/8/8 w - - 0 1", "g7g8")]
         public void MoveValidator_ShouldSetPromotion_WhenPawnPromoted(string fen, string move)

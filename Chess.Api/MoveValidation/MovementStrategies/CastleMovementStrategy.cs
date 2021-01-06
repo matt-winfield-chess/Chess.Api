@@ -22,6 +22,14 @@ namespace Chess.Api.MoveValidation.MovementStrategies
                 };
             }
 
+            if (IsThroughCheck(move, boardState))
+            {
+                return new MoveValidationResult
+                {
+                    IsValid = false
+                };
+            }
+
             var rookMove = GetRookMove(move);
             return new MoveValidationResult
             {
@@ -64,7 +72,7 @@ namespace Chess.Api.MoveValidation.MovementStrategies
 
         private bool IsBlocked(Move move, Piece[,] piecePositions)
         {
-            if (move.StartPosition.X == 2)
+            if (move.EndPosition.X == 2)
             {
                 for (int x = 1; x <= 3; x++)
                 {
@@ -78,6 +86,34 @@ namespace Chess.Api.MoveValidation.MovementStrategies
                 {
                     var piece = piecePositions[x, move.EndPosition.Y];
                     if (piece != null) return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool IsThroughCheck(Move move, BoardState boardState)
+        {
+            var color = boardState.PiecePositions[move.StartPosition.X, move.StartPosition.Y].Color;
+
+            if (MoveValidator.IsSquareAttacked(move.StartPosition, color, boardState))
+            {
+                return true;
+            }
+
+            for (int x = move.StartPosition.X;
+                x != move.EndPosition.X;
+                x += Math.Sign(move.EndPosition.X - move.StartPosition.X))
+            {
+                var position = new Coordinate
+                {
+                    X = x,
+                    Y = move.StartPosition.Y
+                };
+
+                if (MoveValidator.IsSquareAttacked(position, color, boardState))
+                {
+                    return true;
                 }
             }
 
