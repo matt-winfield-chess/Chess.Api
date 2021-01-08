@@ -43,6 +43,29 @@ namespace Chess.Api.Repositories
             return connection.QueryFirstOrDefault<User>("GetUserById", parameters, commandType: CommandType.StoredProcedure);
         }
 
+        public int GetUserPieceMovementMethod(int userId)
+        {
+            using var connection = new MySqlConnection(_connectionString);
+
+            var parameters = new DynamicParameters();
+            parameters.Add("userIdInput", userId);
+
+            return connection.QueryFirstOrDefault<int>("GetUserPieceMovementMethod", parameters,
+                commandType: CommandType.StoredProcedure);
+        }
+
+        public void SetUserPieceMovementMethod(int userId, int movementMethod)
+        {
+            using var connection = new MySqlConnection(_connectionString);
+
+            var parameters = new DynamicParameters();
+            parameters.Add("userIdInput", userId);
+            parameters.Add("pieceMovementMethodInput", movementMethod);
+
+            connection.Execute("SetUserPieceMovementMethod", parameters,
+                commandType: CommandType.StoredProcedure);
+        }
+
         public HashedCredentials GetUserCredentialsByUsername(string username)
         {
             using var connection = new MySqlConnection(_connectionString);

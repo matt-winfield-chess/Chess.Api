@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
+using Chess.Api.Utils.Interfaces;
 
 namespace Chess.Api.Controllers
 {
@@ -17,13 +18,16 @@ namespace Chess.Api.Controllers
     {
         private readonly IUserRepository _userRepository;
         private readonly ICredentialService _credentialService;
+        private readonly IClaimsProvider _claimsProvider;
         private readonly PostUserModelValidator _postUserModelValidator;
         private readonly ILogger<UsersController> _logger;
 
-        public UsersController(IUserRepository userRepository, ICredentialService credentialService, ILogger<UsersController> logger)
+        public UsersController(IUserRepository userRepository, ICredentialService credentialService,
+            IClaimsProvider claimsProvider, ILogger<UsersController> logger)
         {
             _userRepository = userRepository;
             _credentialService = credentialService;
+            _claimsProvider = claimsProvider;
             _postUserModelValidator = new PostUserModelValidator();
             _logger = logger;
         }
@@ -64,14 +68,41 @@ namespace Chess.Api.Controllers
 
         [Authorize]
         [HttpGet("UserId")]
-        public ActionResult<ApiMethodResponse<string>> GetUserId()
+        public ActionResult<ApiMethodResponse<int?>> GetUserId()
         {
-            var claims = HttpContext.User.Claims;
-            var id = claims.FirstOrDefault(claim => claim.Type == "id")?.Value;
+            var id = _claimsProvider.GetId(HttpContext);
 
-            return Ok(new ApiMethodResponse<string>
+            return Ok(new ApiMethodResponse<int?>
             {
                 Data = id
+            });
+        }
+
+        [Authorize]
+        [HttpPost("PieceMovementMethod/{movementMethod}")]
+        public ActionResult<ApiMethodResponse<bool>> ChangePieceMovementMethod(int movementMethod)
+        {
+            var id = _claimsProvider.GetId(HttpContext).Value;
+
+            _userRepository.SetUserPieceMovementMethod(id, movementMethod);
+
+            return Ok(new ApiMethodResponse<bool>
+            {
+                Data = true
+            });
+        }
+
+        [Authorize]
+        [HttpGet("PieceMovementMethod")]
+        public ActionResult<ApiMethodResponse<int>> GetPieceMovementMethod()
+        {
+            var id = _claimsProvider.GetId(HttpContext).Value;
+
+            var movementMethod = _userRepository.GetUserPieceMovementMethod(id);
+
+            return Ok(new ApiMethodResponse<int>
+            {
+                Data = movementMethod
             });
         }
     }

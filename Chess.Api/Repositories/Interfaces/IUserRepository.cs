@@ -7,5 +7,7 @@ namespace Chess.Api.Repositories.Interfaces
         int CreateUser(string username, string passwordHash, string salt);
         HashedCredentials GetUserCredentialsByUsername(string username);
         User GetUserById(int userId);
+        int GetUserPieceMovementMethod(int userId);
+        void SetUserPieceMovementMethod(int userId, int movementMethod);
     }
 }
