@@ -11,6 +11,7 @@ using System.Runtime.Serialization;
 using Chess.Api.Authentication;
 using Chess.Api.Models.Post;
 using Chess.Api.Repositories.Interfaces;
+using Chess.Api.Utils.Interfaces;
 
 namespace Chess.Api.Tests
 {
@@ -24,15 +25,17 @@ namespace Chess.Api.Tests
 
         private UsersController _controller;
         private Mock<IUserRepository> _userRepositoryMock;
+        private Mock<IClaimsProvider> _claimsProviderMock;
         private Mock<ILogger<UsersController>> _loggerMock;
 
         [SetUp]
         public void Setup()
         {
             _userRepositoryMock = new Mock<IUserRepository>();
+            _claimsProviderMock = new Mock<IClaimsProvider>();
             _loggerMock = new Mock<ILogger<UsersController>>();
 
-            _controller = new UsersController(_userRepositoryMock.Object, new CredentialService(), _loggerMock.Object);
+            _controller = new UsersController(_userRepositoryMock.Object, new CredentialService(), _claimsProviderMock.Object, _loggerMock.Object);
         }
 
         [Test]
