@@ -25,14 +25,13 @@ namespace Chess.Api.Tests
 
         private UsersController _controller;
         private Mock<IUserRepository> _userRepositoryMock;
-        private Mock<IClaimsProvider> _claimsProviderMock;
         private Mock<ILogger<UsersController>> _loggerMock;
 
         [SetUp]
         public void Setup()
         {
             _userRepositoryMock = new Mock<IUserRepository>();
-            _claimsProviderMock = new Mock<IClaimsProvider>();
+            var _claimsProviderMock = new Mock<IClaimsProvider>();
             _loggerMock = new Mock<ILogger<UsersController>>();
 
             _controller = new UsersController(_userRepositoryMock.Object, new CredentialService(), _claimsProviderMock.Object, _loggerMock.Object);
