@@ -61,6 +61,22 @@ namespace Chess.Api.SignalR.Hubs
                 return;
             }
 
+            var userIdString = Context.UserIdentifier;
+            if (userIdString == null)
+            {
+                _logger.LogInformation("Move {Move} was illegal in game {GameId} because user was not logged in", moveNotation, gameId);
+                await Clients.Caller.SendAsync(GameHubOutgoingMessages.ILLEGAL_MOVE, game.Fen);
+                return;
+            }
+
+            var parsedUserId = int.Parse(userIdString);
+            if (parsedUserId != game.WhitePlayerId && parsedUserId != game.BlackPlayerId)
+            {
+                _logger.LogInformation("Move {Move} was illegal in game {GameId} because user {userId} is not a player", moveNotation, gameId, parsedUserId);
+                await Clients.Caller.SendAsync(GameHubOutgoingMessages.ILLEGAL_MOVE, game.Fen);
+                return;
+            }
+
             var moveValidationResult = _moveValidator.ValidateMove(game.Fen, moveNotation);
             if (!moveValidationResult.IsValid)
             {
