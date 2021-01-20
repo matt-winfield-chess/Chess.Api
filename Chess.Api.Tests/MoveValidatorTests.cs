@@ -188,13 +188,25 @@ namespace Chess.Api.Tests
             result.IsValid.Should().BeFalse();
         }
 
-        [TestCase("8/8/8/8/8/8/6p1/8 b - - 0 1", "g2g1")]
-        [TestCase("8/6P1/8/8/8/8/8/8 w - - 0 1", "g7g8")]
-        public void MoveValidator_ShouldSetPromotion_WhenPawnPromoted(string fen, string move)
+        [TestCase("8/8/8/8/8/8/6p1/8 b - - 0 1", "g2g1q", PieceType.Queen)]
+        [TestCase("8/6P1/8/8/8/8/8/8 w - - 0 1", "g7g8q", PieceType.Queen)]
+        [TestCase("8/6P1/8/8/8/8/8/8 w - - 0 1", "g7g8n", PieceType.Knight)]
+        [TestCase("8/6P1/8/8/8/8/8/8 w - - 0 1", "g7g8b", PieceType.Bishop)]
+        [TestCase("8/6P1/8/8/8/8/8/8 w - - 0 1", "g7g8r", PieceType.Rook)]
+        public void MoveValidator_ShouldSetPromotion_WhenPawnPromoted(string fen, string move, PieceType expectedType)
         {
             var result = _moveValidator.ValidateMove(fen, move);
 
-            result.IsPromotion.Should().BeTrue();
+            result.Promotion.Should().Be(expectedType);
+        }
+
+        [TestCase("8/8/8/8/8/8/6p1/8 b - - 0 1", "g2g1k")]
+        [TestCase("8/8/8/8/8/8/6p1/8 b - - 0 1", "g2g1p")]
+        public void MoveValidator_ShouldBeInvalid_WhenInvalidPromotionPiece(string fen, string move)
+        {
+            var result = _moveValidator.ValidateMove(fen, move);
+
+            result.IsValid.Should().BeFalse();
         }
 
         [TestCase("8/8/8/4q3/3P4/8/8/8 w - - 0 1", "d4e5")]

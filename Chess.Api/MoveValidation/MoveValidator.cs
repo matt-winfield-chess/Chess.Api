@@ -49,6 +49,14 @@ namespace Chess.Api.MoveValidation
                 };
             }
 
+            if (!IsValidPromotion(move))
+            {
+                return new MoveValidationResult
+                {
+                    IsValid = false
+                };
+            }
+
             var movementStrategies = _movementStrategyProvider.GetStrategies(piece.Type);
 
             foreach (var movementStrategy in movementStrategies)
@@ -116,6 +124,12 @@ namespace Chess.Api.MoveValidation
         private bool IsCorrectColor(Piece piece, BoardState boardState)
         {
             return piece.Color == boardState.ActiveColor;
+        }
+
+        private bool IsValidPromotion(Move move)
+        {
+            return move.Promotion != PieceType.King
+                   && move.Promotion != PieceType.Pawn;
         }
 
         private bool DoesActivePlayerHaveLegalMoves(BoardState boardState)

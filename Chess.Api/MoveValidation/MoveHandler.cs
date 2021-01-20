@@ -64,13 +64,13 @@ namespace Chess.Api.MoveValidation
 
         private void PromotePawn(Move move, MoveValidationResult moveValidation, Piece[,] piecePositions)
         {
-            if (moveValidation.IsPromotion)
+            if (moveValidation.Promotion != null)
             {
                 var piece = piecePositions[move.EndPosition.X, move.EndPosition.Y];
                 piecePositions[move.EndPosition.X, move.EndPosition.Y] = new Piece
                 {
                     Color = piece.Color,
-                    Type = PieceType.Queen
+                    Type = moveValidation.Promotion.Value
                 };
             }
         }

@@ -26,12 +26,15 @@ namespace Chess.Api.MoveValidation
         {
             var lowercaseNotation = notation.ToLower(CultureInfo.InvariantCulture).Trim();
 
-            if (lowercaseNotation.Length != 4) return null;
+            if (lowercaseNotation.Length < 4 || lowercaseNotation.Length > 5) return null;
 
             return new Move
             {
                 StartPosition = ParseNotationCoordinate(notation.Substring(0, 2)),
-                EndPosition = ParseNotationCoordinate(notation.Substring(2))
+                EndPosition = ParseNotationCoordinate(notation.Substring(2, 2)),
+                Promotion = lowercaseNotation.Length != 5
+                    ? null
+                    : lowercaseNotation[4].ToPieceType()
             };
         }
 

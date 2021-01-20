@@ -4,9 +4,18 @@
     {
         public Coordinate StartPosition { get; set; }
         public Coordinate EndPosition { get; set; }
+        public PieceType? Promotion { get; set; }
+
         public string MoveString
         {
-            get => $"{StartPosition.ToString()}{EndPosition.ToString()}";
+            get
+            {
+                var promotionString = Promotion == null
+                    ? ""
+                    : $"{Promotion.Value.ToCharacter()}";
+
+                return $"{StartPosition.ToString()}{EndPosition.ToString()}{promotionString}";
+            }
         }
 
         public override string ToString()
