@@ -1,29 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace Chess.Api.MoveValidation
 {
     public class FenParser
     {
-        private readonly Dictionary<char, PieceType> _characterToPieceType = new Dictionary<char, PieceType>
-        {
-            {'p', PieceType.Pawn},
-            {'n', PieceType.Knight},
-            {'b', PieceType.Bishop},
-            {'r', PieceType.Rook},
-            {'q', PieceType.Queen},
-            {'k', PieceType.King}
-        };
-
-        private readonly Dictionary<PieceType, char> _pieceTypeToCharacter;
-
-        public FenParser()
-        {
-            _pieceTypeToCharacter = _characterToPieceType.ToDictionary(dict => dict.Value, dict => dict.Key); // Invert character to piece dictionary
-        }
-
         public BoardState ParseFen(string fen)
         {
             var fenComponents = fen.Split(' ');
@@ -114,7 +95,7 @@ namespace Chess.Api.MoveValidation
             return new Piece
             {
                 Color = char.IsUpper(character) ? Color.White : Color.Black,
-                Type = _characterToPieceType[char.ToLower(character)]
+                Type = character.ToPieceType().Value
             };
         }
 
@@ -139,7 +120,7 @@ namespace Chess.Api.MoveValidation
                             spaceCount = 0;
                         }
 
-                        char character = _pieceTypeToCharacter[piece.Type];
+                        char character = piece.Type.ToCharacter();
 
                         if (piece.Color == Color.White)
                         {

@@ -53,5 +53,25 @@ namespace Chess.Api.Tests
 
             result.HalfmoveClock.Should().Be(0);
         }
+
+        [TestCase("8/3P4/8/8/8/8/8/8 w - - 0 1", "d7d8q", PieceType.Queen)]
+        [TestCase("8/3P4/8/8/8/8/8/8 w - - 0 1", "d7d8b", PieceType.Bishop)]
+        [TestCase("8/3P4/8/8/8/8/8/8 w - - 0 1", "d7d8r", PieceType.Rook)]
+        [TestCase("8/3P4/8/8/8/8/8/8 w - - 0 1", "d7d8k", PieceType.Knight)]
+        public void ApplyMove_ShouldSetCorrectPiece_WhenPromoting(string fen, string moveNotation, PieceType expectedType)
+        {
+            var move = _coordinateNotationParser.ParseNotationMove(moveNotation);
+            var boardState = _fenParser.ParseFen(fen);
+            var moveValidationResult = new MoveValidationResult
+            {
+                IsValid = true,
+                ShouldResetHalfmoveClock = true,
+                Promotion = expectedType
+            };
+
+            var result = _moveHandler.ApplyMove(boardState, move, moveValidationResult);
+
+            result.PiecePositions[3, 7].Type.Should().Be(expectedType);
+        }
     }
 }

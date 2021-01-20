@@ -37,7 +37,7 @@ namespace Chess.Api.MoveValidation.MovementStrategies
                 return new MoveValidationResult
                 {
                     IsValid = true,
-                    IsPromotion = IsPromotion(move),
+                    Promotion = IsPromotion(move) ? move.Promotion : null,
                     ShouldResetHalfmoveClock = true
                 };
             }
@@ -46,7 +46,7 @@ namespace Chess.Api.MoveValidation.MovementStrategies
             {
                 IsValid = IsValidMoveForward(move, boardState.PiecePositions),
                 NewEnPassantTarget = GetNewEnPassantTarget(move),
-                IsPromotion = IsPromotion(move),
+                Promotion = IsPromotion(move) ? move.Promotion : null,
                 ShouldResetHalfmoveClock = true
             };
         }

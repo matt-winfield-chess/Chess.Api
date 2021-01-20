@@ -11,12 +11,14 @@ using Chess.Api.Responses;
 using Chess.Api.SignalR.Hubs;
 using Chess.Api.SignalR.Messages;
 using Chess.Api.Utils.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Chess.Api.Controllers
 {
     [Route("api/[controller]")]
+    [Authorize]
     [ApiController]
     public class GameController : Controller
     {
@@ -34,6 +36,7 @@ namespace Chess.Api.Controllers
             _gameHubContext = gameHubContext;
         }
 
+        [AllowAnonymous]
         [HttpGet("{gameId}")]
         public ActionResult<ApiMethodResponse<Game>> GetGame(string gameId)
         {
