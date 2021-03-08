@@ -45,7 +45,17 @@ namespace Chess.Api
             ConfigureAuthenticationAndAuthorization(services);
             ConfigureSwagger(services);
 
-            services.AddSignalR();
+            var redisBackplaneConnectionString = Configuration.GetValue<string>("RedisBackplaneConnectionString");
+
+            if (!string.IsNullOrEmpty(redisBackplaneConnectionString))
+            {
+                services.AddSignalR()
+                    .AddStackExchangeRedis(redisBackplaneConnectionString);
+            } else
+            {
+                services.AddSignalR();
+            }
+            
             services.AddSingleton<IUserIdProvider, IdClaimUserIdProvider>();
 
             RegisterRepositories(services);
