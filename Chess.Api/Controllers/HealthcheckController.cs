@@ -24,28 +24,28 @@ namespace Chess.Api.Controllers
         [HttpGet("challenges")]
         public ActionResult<ApiMethodResponse<bool>> Challenges()
         {
-            return HealthCheck(_challengeRepository);
+            return CheckHealth(_challengeRepository);
         }
 
         [HttpGet("games")]
         public ActionResult<ApiMethodResponse<bool>> Games()
         {
-            return HealthCheck(_gameRepository);
+            return CheckHealth(_gameRepository);
         }
 
         [HttpGet("users")]
         public ActionResult<ApiMethodResponse<bool>> Users()
         {
-            return HealthCheck(_userRepository);
+            return CheckHealth(_userRepository);
         }
 
-        private ObjectResult HealthCheck(IHasHealthCheck healthCheck)
+        private ObjectResult CheckHealth(IHasHealthCheck healthCheck)
         {
             try
             {
                 var healthy = healthCheck.CheckHealth();
 
-                var response = new ApiMethodResponse<bool>()
+                var response = new ApiMethodResponse<bool>
                 {
                     Data = healthy
                 };
@@ -59,7 +59,7 @@ namespace Chess.Api.Controllers
             }
             catch (Exception e)
             {
-                var response = new ApiMethodResponse<bool>()
+                var response = new ApiMethodResponse<bool>
                 {
                     Data = false,
                     Errors = new[] { e.Message }
