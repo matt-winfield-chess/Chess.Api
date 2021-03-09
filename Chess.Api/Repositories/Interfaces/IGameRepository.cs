@@ -1,11 +1,9 @@
-﻿using Chess.Api.Models;
+﻿using Chess.Api.Models.Database;
 using System.Collections.Generic;
-using Chess.Api.Models.Database;
-using Chess.Api.MoveValidation;
 
 namespace Chess.Api.Repositories.Interfaces
 {
-    public interface IGameRepository
+    public interface IGameRepository : IHasHealthCheck
     {
         void CreateGame(string gameId, int whitePlayerId, int blackPlayerId);
         void CreateGame(string gameId, int whitePlayerId, int blackPlayerId, string fen);
