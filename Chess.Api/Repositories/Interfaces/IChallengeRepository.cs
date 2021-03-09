@@ -4,7 +4,7 @@ using Chess.Api.Models.Database;
 
 namespace Chess.Api.Repositories.Interfaces
 {
-    public interface IChallengeRepository
+    public interface IChallengeRepository : IHasHealthCheck
     {
         IEnumerable<ChallengeDatabaseModel> GetChallengesByChallenger(int challengerId);
         IEnumerable<ChallengeDatabaseModel> GetChallengesByRecipient(int recipientId);

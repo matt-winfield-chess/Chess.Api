@@ -20,6 +20,15 @@ namespace Chess.Api.Repositories
             _connectionString = dbConnectionString;
         }
 
+        public bool CheckHealth()
+        {
+            using var connection = new MySqlConnection(_connectionString);
+            connection.Open();
+            var isSuccess = connection.State == ConnectionState.Open;
+            connection.Close();
+            return isSuccess;
+        }
+
         public IEnumerable<ChallengeDatabaseModel> GetChallengesByRecipient(int recipientId)
         {
             using var connection = new MySqlConnection(_connectionString);

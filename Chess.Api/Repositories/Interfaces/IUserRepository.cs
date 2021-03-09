@@ -2,7 +2,7 @@
 
 namespace Chess.Api.Repositories.Interfaces
 {
-    public interface IUserRepository
+    public interface IUserRepository : IHasHealthCheck
     {
         int CreateUser(string username, string passwordHash, string salt);
         HashedCredentials GetUserCredentialsByUsername(string username);
