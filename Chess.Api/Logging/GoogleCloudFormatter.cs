@@ -48,7 +48,6 @@ namespace Chess.Api.Logging
             output.Write("\",\"textPayload\":");
             var message = logEvent.MessageTemplate.Render(logEvent.Properties);
             JsonValueFormatter.WriteQuotedJsonString(message, output);
-            //output.Write('"');
 
             if (logEvent.Level != LogEventLevel.Information)
             {
