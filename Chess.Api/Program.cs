@@ -1,3 +1,4 @@
+using Chess.Api.Logging;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Serilog;
@@ -15,8 +16,8 @@ namespace Chess.Api
                 .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
                 .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
                 .Enrich.FromLogContext()
-                .WriteTo.Console()
-                .WriteTo.Debug()
+                .WriteTo.Console(new GoogleCloudFormatter())
+                .WriteTo.Debug(new GoogleCloudFormatter())
                 .WriteTo.File("logs/chess-api-log.txt")
                 .CreateLogger();
 
